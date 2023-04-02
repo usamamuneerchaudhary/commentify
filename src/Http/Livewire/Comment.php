@@ -4,6 +4,10 @@ namespace Usamamuneerchaudhary\Commentify\Http\Livewire;
 
 
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -92,19 +96,30 @@ class Comment extends Component
         $this->isEditing = false;
     }
 
-    public function deleteComment()
+    /**
+     * @return void
+     * @throws AuthorizationException
+     */
+    public function deleteComment(): void
     {
         $this->authorize('destroy', $this->comment);
         $this->comment->delete();
         $this->emitUp('refresh');
     }
 
-    public function render()
+    /**
+     * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application|null
+     */
+    public function render(
+    ): \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\View|\Illuminate\Contracts\Foundation\Application|null
     {
         return view('commentify::livewire.comment');
     }
 
-    public function postReply()
+    /**
+     * @return void
+     */
+    public function postReply(): void
     {
         if (!$this->comment->isParent()) {
             return;
@@ -124,26 +139,23 @@ class Comment extends Component
         $this->emitSelf('refresh');
     }
 
-    public function updatedReplyState()
-    {
-        $this->isMentioning = strpos($this->comment->body, '@') !== false;
-
-        if ($this->isMentioning) {
-            $searchTerm = str_replace('@', '', $this->comment->body);
-            $this->users = User::where('name', 'like', '%'.$searchTerm.'%')->take(5)->get();
-        } else {
-            $this->users = [];
-        }
-    }
-
-    public function selectUser($userName)
+    /**
+     * @param $userName
+     * @return void
+     */
+    public function selectUser($userName): void
     {
         $this->replyState['body'] = preg_replace('/@(\w+)$/', '@'.str_replace(' ', '_', Str::lower($userName)).' ',
             $this->replyState['body']);
         $this->users = [];
     }
 
-    public function getUsers($searchTerm)
+
+    /**
+     * @param $searchTerm
+     * @return void
+     */
+    public function getUsers($searchTerm): void
     {
         if (!empty($searchTerm)) {
             $this->users = User::where('name', 'like', '%'.$searchTerm.'%')->take(5)->get();

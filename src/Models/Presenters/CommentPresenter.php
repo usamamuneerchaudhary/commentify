@@ -7,24 +7,40 @@ use Usamamuneerchaudhary\Commentify\Models\Comment;
 
 class CommentPresenter
 {
+    /**
+     * @var Comment
+     */
     public Comment $comment;
 
+    /**
+     * @param  Comment  $comment
+     */
     public function __construct(Comment $comment)
     {
         $this->comment = $comment;
     }
 
-    public function markdownBody()
+    /**
+     * @return HtmlString
+     */
+    public function markdownBody(): HtmlString
     {
         return new HtmlString(app('markdown')->convertToHtml($this->comment->body));
     }
 
-    public function relativeCreatedAt()
+    /**
+     * @return mixed
+     */
+    public function relativeCreatedAt(): mixed
     {
         return $this->comment->created_at->diffForHumans();
     }
 
-    public function replaceUserMentions($text)
+    /**
+     * @param $text
+     * @return array|string
+     */
+    public function replaceUserMentions($text): array|string
     {
         preg_match_all('/@([A-Za-z0-9_]+)/', $text, $matches);
         $usernames = $matches[1];

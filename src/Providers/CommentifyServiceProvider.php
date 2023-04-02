@@ -37,13 +37,10 @@ class CommentifyServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../../config/commentify.php' => config_path('commentify.php'),
             ], 'commentify-config');
-
-
         }
         $this->loadMigrationsFrom(__DIR__.'/../../migrations');
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'commentify');
         Livewire::component('comments', Comments::class);
         Livewire::component('comment', Comment::class);
-//        $this->registerRoutes();
     }
 }

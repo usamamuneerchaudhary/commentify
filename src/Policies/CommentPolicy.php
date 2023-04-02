@@ -10,12 +10,22 @@ class CommentPolicy
 {
     use HandlesAuthorization;
 
-    public function update(User $user, Comment $comment)
+    /**
+     * @param  User  $user
+     * @param  Comment  $comment
+     * @return bool
+     */
+    public function update(User $user, Comment $comment): bool
     {
         return $user->id === $comment->user_id;
     }
 
-    public function destroy(User $user, Comment $comment)
+    /**
+     * @param  User  $user
+     * @param  Comment  $comment
+     * @return bool
+     */
+    public function destroy(User $user, Comment $comment): bool
     {
         return $user->id === $comment->user_id;
     }

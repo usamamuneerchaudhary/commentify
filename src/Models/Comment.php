@@ -4,6 +4,9 @@ namespace Usamamuneerchaudhary\Commentify\Models;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Usamamuneerchaudhary\Commentify\Models\Presenters\CommentPresenter;
 use Usamamuneerchaudhary\Commentify\Scopes\CommentScopes;
@@ -13,31 +16,53 @@ class Comment extends Model
 
     use CommentScopes, SoftDeletes;
 
+    /**
+     * @var string
+     */
     protected $table = 'comments';
+
+    /**
+     * @var string[]
+     */
     protected $fillable = ['body'];
 
 
-    public function presenter()
+    /**
+     * @return CommentPresenter
+     */
+    public function presenter(): CommentPresenter
     {
         return new CommentPresenter($this);
     }
 
-    public function isParent()
+    /**
+     * @return bool
+     */
+    public function isParent(): bool
     {
         return is_null($this->parent_id);
     }
 
-    public function user()
+    /**
+     * @return BelongsTo
+     */
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function children()
+    /**
+     * @return HasMany
+     */
+    public function children(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Comment::class, 'parent_id')->oldest();
     }
 
-    public function commentable()
+    /**
+     * @return MorphTo
+     */
+    public function commentable(): \Illuminate\Database\Eloquent\Relations\MorphTo
     {
         return $this->morphTo();
     }

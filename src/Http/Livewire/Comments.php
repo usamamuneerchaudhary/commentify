@@ -4,6 +4,9 @@ namespace Usamamuneerchaudhary\Commentify\Http\Livewire;
 
 
 use App\Models\User;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -11,36 +14,64 @@ class Comments extends Component
 {
     use WithPagination;
 
+    /**
+     * @var
+     */
     public $model;
-    public $users = [];
-    public $showDropdown = false;
 
-    public $newCommentState = [
+    /**
+     * @var array
+     */
+    public array $users = [];
+
+    /**
+     * @var bool
+     */
+    public bool $showDropdown = false;
+
+    /**
+     * @var array|string[]
+     */
+    public array $newCommentState = [
         'body' => ''
     ];
 
+
+    /**
+     * @var string[]
+     */
     protected $listeners = [
         'refresh' => '$refresh'
     ];
 
-    protected $validationAttributes = [
+    /**
+     * @var array|string[]
+     */
+    protected array $validationAttributes = [
         'newCommentState.body' => 'comment'
     ];
 
-    public function render()
+    /**
+     * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application|null
+     */
+    public function render(
+    ): \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\View|\Illuminate\Contracts\Foundation\Application|null
     {
         $comments = $this->model
             ->comments()
             ->with('user', 'children.user', 'children.children')
             ->parent()
             ->latest()
-            ->paginate(3);
+            ->paginate(10);
         return view('commentify::livewire.comments', [
             'comments' => $comments
         ]);
     }
 
-    public function postComment()
+    /**
+     * @return void
+     */
+    public function postComment(): void
     {
         $this->validate([
             'newCommentState.body' => 'required'
@@ -59,24 +90,4 @@ class Comments extends Component
         $this->resetPage();
     }
 
-    public function updatedNewCommentStateBody($value)
-    {
-        if (preg_match('/@(\w+)$/', $value, $matches)) {
-            $term = $matches[1];
-
-            $this->users = User::where('name', 'like', '%'.$term.'%')->get();
-            $this->showDropdown = true;
-        } else {
-            $this->users = [];
-            $this->showDropdown = false;
-        }
-    }
-
-
-    public function selectUser($username)
-    {
-        $this->comment = preg_replace('/@(\w+)$/', '@'.str_replace(' ', '_', $username).' ', $this->comment);
-        $this->users = [];
-        $this->showDropdown = false;
-    }
 }
