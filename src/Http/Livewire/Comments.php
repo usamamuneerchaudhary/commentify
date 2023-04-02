@@ -22,17 +22,17 @@ class Comments extends Component
     /**
      * @var array
      */
-    public array $users = [];
+    public $users = [];
 
     /**
      * @var bool
      */
-    public bool $showDropdown = false;
+    public $showDropdown = false;
 
     /**
      * @var array|string[]
      */
-    public array $newCommentState = [
+    public $newCommentState = [
         'body' => ''
     ];
 
@@ -47,7 +47,7 @@ class Comments extends Component
     /**
      * @var array|string[]
      */
-    protected array $validationAttributes = [
+    protected $validationAttributes = [
         'newCommentState.body' => 'comment'
     ];
 
