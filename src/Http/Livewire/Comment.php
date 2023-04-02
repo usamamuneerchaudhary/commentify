@@ -103,6 +103,7 @@ class Comment extends Component
         ]);
         $this->comment->update($this->editState);
         $this->isEditing = false;
+        $this->showOptions = false;
     }
 
     /**
@@ -114,6 +115,7 @@ class Comment extends Component
         $this->authorize('destroy', $this->comment);
         $this->comment->delete();
         $this->emitUp('refresh');
+        $this->showOptions = false;
     }
 
     /**
@@ -145,6 +147,7 @@ class Comment extends Component
             'body' => ''
         ];
         $this->isReplying = false;
+        $this->showOptions = false;
         $this->emitSelf('refresh');
     }
 
