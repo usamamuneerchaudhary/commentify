@@ -1,0 +1,49 @@
+<?php
+
+namespace Usamamuneerchaudhary\Commentify\Providers;
+
+
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
+use Usamamuneerchaudhary\Commentify\Http\Livewire\Comment;
+use Usamamuneerchaudhary\Commentify\Http\Livewire\Comments;
+use Usamamuneerchaudhary\Commentify\Policies\CommentPolicy;
+
+class CommentifyServiceProvider extends ServiceProvider
+{
+    /**
+     * @return void
+     */
+    public function register(): void
+    {
+        $this->app->bind(CommentPolicy::class, function ($app) {
+            return new CommentPolicy;
+        });
+
+        Gate::policy(\Usamamuneerchaudhary\Commentify\Models\Comment::class, CommentPolicy::class);
+
+        $this->app->register(MarkdownServiceProvider::class);
+    }
+
+
+    /**
+     * @return void
+     */
+    public function boot(): void
+    {
+        if ($this->app->runningInConsole()) {
+            // Publish config file
+            $this->publishes([
+                __DIR__.'/../../config/commentify.php' => config_path('commentify.php'),
+            ], 'commentify-config');
+
+
+        }
+        $this->loadMigrationsFrom(__DIR__.'/../../migrations');
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'commentify');
+        Livewire::component('comments', Comments::class);
+        Livewire::component('comment', Comment::class);
+//        $this->registerRoutes();
+    }
+}
