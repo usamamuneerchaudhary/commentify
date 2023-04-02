@@ -34,6 +34,10 @@ class Comment extends Component
     /**
      * @var bool
      */
+    public $showOptions = false;
+    /**
+     * @var bool
+     */
     public $isEditing = false;
 
     /**
@@ -60,7 +64,9 @@ class Comment extends Component
      * @var string[]
      */
     protected $validationAttributes = [
-        'replyState.body' => 'Reply'
+        'replyState.body' => 'Reply',
+        'editState.body' => 'Reply',
+
     ];
 
     /**
@@ -92,6 +98,9 @@ class Comment extends Component
     public function editComment(): void
     {
         $this->authorize('update', $this->comment);
+        $this->validate([
+            'editState.body' => 'required|min:1'
+        ]);
         $this->comment->update($this->editState);
         $this->isEditing = false;
     }
@@ -145,9 +154,15 @@ class Comment extends Component
      */
     public function selectUser($userName): void
     {
-        $this->replyState['body'] = preg_replace('/@(\w+)$/', '@'.str_replace(' ', '_', Str::lower($userName)).' ',
-            $this->replyState['body']);
-        $this->users = [];
+        if ($this->replyState['body']) {
+            $this->replyState['body'] = preg_replace('/@(\w+)$/', '@'.str_replace(' ', '_', Str::lower($userName)).' ',
+                $this->replyState['body']);
+            $this->users = [];
+        } elseif ($this->editState['body']) {
+            $this->editState['body'] = preg_replace('/@(\w+)$/', '@'.str_replace(' ', '_', Str::lower($userName)).' ',
+                $this->editState['body']);
+            $this->users = [];
+        }
     }
 
 
