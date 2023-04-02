@@ -1,123 +1,117 @@
 <div>
-    <div class="flex">
-        <div class="flex-shrink-0 mr-4">
-            <img class="h-10 w-10 rounded-full" src="{{$comment->user->avatar()}}" alt="{{$comment->user->name}}">
-        </div>
-        <div class="flex-grow">
-            <div>
-                <a href="#" class="font-medium text-gray-900">{{$comment->user->name}}</a>
-            </div>
-            <div class="mt-1 flex-grow w-full">
-                @if($isEditing)
-                    <form wire:submit.prevent="editComment">
-                        <div>
-                            <label for="comment" class="sr-only">Comment body</label>
-                            <textarea id="comment" name="comment" rows="3"
-                                      class="shadow-sm block w-full focus:ring-blue-500 focus:border-blue-500
-                                               border-gray-300 rounded-md
-                                               @error('editState.body') border-red-500 @enderror"
-                                      placeholder="Write something" wire:model.defer="editState.body"></textarea>
-                           
-                            @error('editState.body')
-                            <p class="mt-2 text-sm text-red-600">
-                                {{$message}}
-                            </p>
-                            @enderror
-                        </div>
-                        <div class="mt-3 flex items-center justify-between">
-                            <button type="submit"
-                                    class="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                Edit
-                            </button>
-                        </div>
-                    </form>
-                @else
-                    <p class="text-gray-700">
-                        {!! $comment->presenter()->replaceUserMentions($comment->presenter()->markdownBody()) !!}
+    @if($isEditing)
+        @include('commentify::livewire.partials.comment-form',[
+            'method'=>'editComment',
+            'state'=>'editState',
+            'inputId'=> 'reply-comment',
+            'inputLabel'=> 'Your Reply',
+            'button'=>'Edit Comment'
+        ])
+    @else
+        <article class="p-6 mb-1 text-base bg-white rounded-lg dark:bg-gray-900">
+            <footer class="flex justify-between items-center mb-1">
+                <div class="flex items-center">
+                    <p class="inline-flex items-center mr-3 text-sm text-gray-900 dark:text-white"><img
+                            class="mr-2 w-6 h-6 rounded-full"
+                            src="{{$comment->user->avatar()}}"
+                            alt="{{$comment->user->name}}">{{Str::ucfirst($comment->user->name)}}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        <time pubdate datetime="{{$comment->presenter()->relativeCreatedAt()}}"
+                              title="{{$comment->presenter()->relativeCreatedAt()}}">
+                            {{$comment->presenter()->relativeCreatedAt()}}
+                        </time>
                     </p>
-                @endif
-            </div>
-            <div class="mt-2 space-x-2">
-                <span class="text-gray-500 font-medium">
-                    {{$comment->presenter()->relativeCreatedAt()}}
-                </span>
-                @auth
-                    @if($comment->isParent())
-                        <button wire:click="$toggle('isReplying')" type="button" class="text-gray-900 font-medium">
-                            Reply
-                        </button>
-                    @endif
-                    @can('update',$comment)
-                        <button wire:click="$toggle('isEditing')" type="button" class="text-gray-900 font-medium">
-                            Edit
-                        </button>
-                    @endcan
+                </div>
+                <div class="relative">
+                    <button wire:click="$toggle('showOptions')"
+                            class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-400 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                            type="button">
+                        <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z">
+                            </path>
+                        </svg>
+                    </button>
+                    <!-- Dropdown menu -->
+                    @if($showOptions)
+                        <div
+                            class="absolute z-10 top-full right-0 mt-1 w-36 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
+                            <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
+                                @can('update',$comment)
+                                    <li>
+                                        <button wire:click="$toggle('isEditing')" type="button"
+                                                class="block w-full text-left py-2 px-4 hover:bg-gray-100
+                                           dark:hover:bg-gray-600
+                                           dark:hover:text-white">Edit
+                                        </button>
+                                    </li>
+                                @endcan
+                                @can('destroy',$comment)
+                                    <li>
 
-                    @can('destroy',$comment)
-                        <button type="button" class="text-gray-900 font-medium"
-                                x-on:click="confirmCommentDeletion"
-                                x-data="{
+                                        <button
+                                            x-on:click="confirmCommentDeletion"
+                                            x-data="{
                                     confirmCommentDeletion(){
                                         if(window.confirm('You sure to delete this comment?')){
                                             @this.call('deleteComment')
                                         }
                                     }
                                 }"
-                        >
-                            Delete
-                        </button>
-                    @endcan
-                @endauth
-            </div>
-        </div>
-    </div>
-
-    <div class="ml-14 mt-6">
-        @if($isReplying)
-            <form wire:submit.prevent="postReply" class="mb-4">
-                <div>
-                    <label for="comment" class="sr-only">Reply body</label>
-                    <textarea id="comment" name="comment" rows="3"
-                              class="shadow-sm block w-full focus:ring-blue-500 focus:border-blue-500
-                                               border-gray-300 rounded-md
-                                               @error('replyState.body') border-red-500 @enderror"
-                              placeholder="Write something"
-                              wire:model.defer="replyState.body"
-                              oninput="detectAtSymbol(event)"
-                    ></textarea>
-
-                    @if(!empty($users) && $users->count() > 0)
-                        <div class="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg">
-                            <ul>
-                                @foreach($users as $user)
-                                    <li class="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                                        wire:click="selectUser('{{ $user->name }}')">{{ $user->name }}</li>
-                                @endforeach
+                                            class="block w-full text-left py-2 px-4 hover:bg-gray-100
+                                            dark:hover:bg-gray-600 dark:hover:text-white">
+                                            Delete
+                                        </button>
+                                    </li>
+                                @endcan
+                                <li>
+                                    <a href="#"
+                                       class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Report</a>
+                                </li>
                             </ul>
                         </div>
                     @endif
-                    @error('replyState.body')
-                    <p class="mt-2 text-sm text-red-600">
-                        {{$message}}
-                    </p>
-                    @enderror
                 </div>
-                <div class="mt-3 flex items-center justify-between">
-                    <button type="submit"
-                            class="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        Reply
-                    </button>
+            </footer>
+            <p class="text-gray-500 dark:text-gray-400">
+                {!! $comment->presenter()->replaceUserMentions($comment->presenter()->markdownBody()) !!}
+            </p>
+            @auth
+                <div class="flex items-center mt-4 space-x-4">
+                    @if($comment->isParent())
+                        <button type="button" wire:click="$toggle('isReplying')"
+                                class="flex items-center text-sm text-gray-500 hover:underline dark:text-gray-400">
+                            <svg aria-hidden="true" class="mr-1 w-4 h-4" fill="none" stroke="currentColor"
+                                 viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                            </svg>
+                            Reply
+                        </button>
+                    @endif
+
                 </div>
-            </form>
-        @endif
+            @endauth
+        </article>
+    @endif
+    @if($isReplying)
+        @include('commentify::livewire.partials.comment-form',[
+           'method'=>'postReply',
+           'state'=>'replyState',
+           'inputId'=> 'reply-comment',
+           'inputLabel'=> 'Your Reply',
+           'button'=>'Post Reply'
+       ])
+    @endif
+    <article class="p-1 mb-1 ml-1 lg:ml-12 border-t border-gray-200 dark:border-gray-700 dark:bg-gray-900">
         @foreach($comment->children as $child)
             <livewire:comment :comment="$child" :key="$child->id"/>
         @endforeach
-    </div>
-
+    </article>
     <script>
-        function detectAtSymbol(event) {
-            const textarea = document.getElementById('comment');
+        function detectAtSymbol() {
+            const textarea = document.getElementById('reply-comment');
             const cursorPosition = textarea.selectionStart;
             const textBeforeCursor = textarea.value.substring(0, cursorPosition);
             const atSymbolPosition = textBeforeCursor.lastIndexOf('@');
