@@ -27,12 +27,9 @@
                         Post comment
                     </button>
                 </form>
+            @else
+                <a class="mt-2 text-sm" href="/login">Log in to comment!</a>
             @endauth
-            @guest
-                @if(Route::has('login'))
-                    <a href="{{route('login')}}">Log in to comment!</a>
-                @endif
-            @endguest
             @if($comments->count())
                 @foreach($comments as $comment)
                     <livewire:comment :comment="$comment" :key="$comment->id"/>
