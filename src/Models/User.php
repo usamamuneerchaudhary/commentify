@@ -23,4 +23,12 @@ class User extends BaseUser
     {
         return UserFactory::new();
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function likes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CommentLike::class);
+    }
 }

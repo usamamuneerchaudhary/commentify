@@ -11,11 +11,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Usamamuneerchaudhary\Commentify\Database\Factories\CommentFactory;
 use Usamamuneerchaudhary\Commentify\Models\Presenters\CommentPresenter;
 use Usamamuneerchaudhary\Commentify\Scopes\CommentScopes;
+use Usamamuneerchaudhary\Commentify\Scopes\HasLikes;
 
 class Comment extends Model
 {
 
-    use CommentScopes, SoftDeletes, HasFactory;
+    use CommentScopes, SoftDeletes, HasFactory, HasLikes;
 
     /**
      * @var string
@@ -27,6 +28,9 @@ class Comment extends Model
      */
     protected $fillable = ['body'];
 
+    protected $withCount = [
+        'likes',
+    ];
 
     /**
      * @return CommentPresenter
