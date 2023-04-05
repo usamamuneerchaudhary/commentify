@@ -63,9 +63,19 @@ Once the package is installed, you can run migrations,
 ### Publish Config File
 
 ```php
- art vendor:publish --tag="commentify-config"
+ php artisan vendor:publish --tag="commentify-config"
 ```
 This will publish `commentify.php` file in config directory. Here you can configure user route and pagination count etc.
+
+### Publish `tailwind.config.js` file, 
+
+This package utilizes TailwindCSS, and use some custom configurations. You can publish package's `tailwind.config.
+js` file by running the following command:
+
+```php
+php artisan vendor:publish --tag="commentify-tailwind-config"
+```
+
 ## Usage
 In your model, where you want to integrate comments, simply add the `Commentable` trait in that model.
 For example: 
