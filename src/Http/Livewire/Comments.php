@@ -61,7 +61,7 @@ class Comments extends Component
             ->with('user', 'children.user', 'children.children')
             ->parent()
             ->latest()
-            ->paginate(10);
+            ->paginate(config('commentify.pagination_count', 10));
         return view('commentify::livewire.comments', [
             'comments' => $comments
         ]);
