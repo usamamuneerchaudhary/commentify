@@ -1,5 +1,5 @@
 ## Commentify - Laravel Livewire Comments
-
+![commentify](public/images/commentify.gif)
 ## Introduction
 
 ## Tests
