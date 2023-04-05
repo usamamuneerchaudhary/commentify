@@ -24,6 +24,7 @@ powerful tool for enhancing user engagement and collaboration.
 ## Some Features Highlight
 
 - Easy to integrate
+- Supports Laravel 10+
 - Livewire powered commenting system
 - Tailwind UI
 - Add comments to any model
@@ -41,6 +42,57 @@ powerful tool for enhancing user engagement and collaboration.
 - [AlpineJS](https://alpinejs.dev/essentials/installation)
 
 ## Installation Guide
+
+You can install the package via composer:
+
+```composer require usamamuneerchaudhary/commentify```
+
+### Register Service Provider
+
+Add the service provider in `config/app.php`:
+
+```php
+Usamamuneerchaudhary\Commentify\Providers\CommentifyServiceProvider::class,
+```
+
+### Run Migrations
+
+Once the package is installed, you can run migrations,
+```php artisan migrate```
+
+### Publish Config File
+
+```php
+ art vendor:publish --tag="commentify-config"
+```
+This will publish `commentify.php` file in config directory. Here you can configure user route and pagination count etc.
+## Usage
+In your model, where you want to integrate comments, simply add the `Commentable` trait in that model.
+For example: 
+```php
+use Usamamuneerchaudhary\Commentify\Traits\Commentable;
+
+class Article extends Model
+{
+    use Commentable;
+}
+```
+
+Next, in your view, pass in the livewire comment component. For example, if your view file is `articles/show.blade.
+php`. We can add the following code:
+```html
+<livewire:comments :model="$article"/>
+```
+
+#### Additionally, add the `HasUserAvatar` trait in `App\Models\User`, to use avatars:
+```php
+use Usamamuneerchaudhary\Commentify\Traits\HasUserAvatar;
+
+class User extends Model
+{
+    use HasUserAvatar;
+}
+```
 
 ## Tests
 
