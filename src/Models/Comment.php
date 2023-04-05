@@ -2,18 +2,20 @@
 
 namespace Usamamuneerchaudhary\Commentify\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Usamamuneerchaudhary\Commentify\Database\Factories\CommentFactory;
 use Usamamuneerchaudhary\Commentify\Models\Presenters\CommentPresenter;
 use Usamamuneerchaudhary\Commentify\Scopes\CommentScopes;
 
 class Comment extends Model
 {
 
-    use CommentScopes, SoftDeletes;
+    use CommentScopes, SoftDeletes, HasFactory;
 
     /**
      * @var string
@@ -64,5 +66,10 @@ class Comment extends Model
     public function commentable(): \Illuminate\Database\Eloquent\Relations\MorphTo
     {
         return $this->morphTo();
+    }
+
+    protected static function newFactory()
+    {
+        return CommentFactory::new();
     }
 }

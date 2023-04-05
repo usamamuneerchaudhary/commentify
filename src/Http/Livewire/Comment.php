@@ -3,7 +3,6 @@
 namespace Usamamuneerchaudhary\Commentify\Http\Livewire;
 
 
-use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -11,6 +10,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use Usamamuneerchaudhary\Commentify\Models\User;
 
 class Comment extends Component
 {
@@ -26,10 +26,8 @@ class Comment extends Component
      */
     public $users = [];
 
-    /**
-     * @var bool
-     */
-    public $isReplying = false;
+
+    public bool $isReplying = false;
 
     /**
      * @var bool
@@ -99,7 +97,7 @@ class Comment extends Component
     {
         $this->authorize('update', $this->comment);
         $this->validate([
-            'editState.body' => 'required|min:1'
+            'editState.body' => 'required|min:2'
         ]);
         $this->comment->update($this->editState);
         $this->isEditing = false;
@@ -160,6 +158,7 @@ class Comment extends Component
         if ($this->replyState['body']) {
             $this->replyState['body'] = preg_replace('/@(\w+)$/', '@'.str_replace(' ', '_', Str::lower($userName)).' ',
                 $this->replyState['body']);
+//            $this->replyState['body'] =$userName;
             $this->users = [];
         } elseif ($this->editState['body']) {
             $this->editState['body'] = preg_replace('/@(\w+)$/', '@'.str_replace(' ', '_', Str::lower($userName)).' ',
