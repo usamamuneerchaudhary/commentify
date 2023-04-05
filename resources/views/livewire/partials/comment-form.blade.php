@@ -1,4 +1,12 @@
 <form class="mb-6" wire:submit.prevent="{{$method}}">
+    @if (session()->has('message'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)">
+            <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+                 role="alert">
+                <span class="font-medium">Success!</span> {{session('message')}}
+            </div>
+        </div>
+    @endif
     @csrf
     <div
         class="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700
@@ -21,8 +29,13 @@
         </p>
         @enderror
     </div>
-    <button type="submit"
+
+    <button wire:loading.attr="disabled" type="submit"
             class="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-primary-700 rounded-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800">
+        <div wire:loading wire:target="{{$method}}">
+            @include('commentify::livewire.partials.loader')
+        </div>
         {{$button}}
     </button>
+
 </form>

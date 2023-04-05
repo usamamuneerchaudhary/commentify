@@ -68,6 +68,7 @@ class Comments extends Component
         $this->showDropdown = false;
 
         $this->resetPage();
+        session()->flash('message', 'Comment Posted Successfully!');
     }
 
 }
