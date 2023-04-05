@@ -77,8 +77,9 @@
             <p class="text-gray-500 dark:text-gray-400">
                 {!! $comment->presenter()->replaceUserMentions($comment->presenter()->markdownBody()) !!}
             </p>
-            @auth
-                <div class="flex items-center mt-4 space-x-4">
+
+            <div class="flex items-center mt-4 space-x-4">
+                @auth
                     @if($comment->isParent())
                         <button type="button" wire:click="$toggle('isReplying')"
                                 class="flex items-center text-sm text-gray-500 hover:underline dark:text-gray-400">
@@ -90,14 +91,16 @@
                             Reply
                         </button>
                     @endif
+                @else
                     @if($comment->children->count())
                         <button type="button" wire:click="$toggle('hasReplies')"
                                 class="flex items-center text-sm text-gray-500 hover:underline dark:text-gray-400">
-                            View all Replies
+                            View all Replies ({{$comment->children->count()}})
                         </button>
                     @endif
-                </div>
-            @endauth
+                @endauth
+            </div>
+
         </article>
     @endif
     @if($isReplying)
