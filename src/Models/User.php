@@ -16,7 +16,10 @@ class User extends BaseUser
      */
     protected $table = 'users';
 
-    protected static function newFactory()
+    /**
+     * @return UserFactory
+     */
+    protected static function newFactory(): UserFactory
     {
         return UserFactory::new();
     }

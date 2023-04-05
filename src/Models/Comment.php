@@ -68,7 +68,10 @@ class Comment extends Model
         return $this->morphTo();
     }
 
-    protected static function newFactory()
+    /**
+     * @return CommentFactory
+     */
+    protected static function newFactory(): CommentFactory
     {
         return CommentFactory::new();
     }

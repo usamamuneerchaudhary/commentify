@@ -13,39 +13,20 @@ class Comments extends Component
 {
     use WithPagination;
 
-    /**
-     * @var
-     */
     public $model;
 
-    /**
-     * @var array
-     */
     public $users = [];
 
-    /**
-     * @var bool
-     */
     public $showDropdown = false;
 
-    /**
-     * @var array|string[]
-     */
     public $newCommentState = [
         'body' => ''
     ];
 
-
-    /**
-     * @var string[]
-     */
     protected $listeners = [
         'refresh' => '$refresh'
     ];
 
-    /**
-     * @var array|string[]
-     */
     protected $validationAttributes = [
         'newCommentState.body' => 'comment'
     ];

@@ -16,60 +16,29 @@ class Comment extends Component
 {
     use AuthorizesRequests;
 
-    /**
-     * @var
-     */
     public $comment;
 
-    /**
-     * @var array
-     */
     public $users = [];
 
+    public $isReplying = false;
 
-    public bool $isReplying = false;
-
-    /**
-     * @var bool
-     */
     public $showOptions = false;
-    /**
-     * @var bool
-     */
+
     public $isEditing = false;
 
-    /**
-     * @var bool
-     */
-    public $isMentioning = false;
-
-    /**
-     * @var string[]
-     */
     public $replyState = [
-        'body' => '',
-        'search' => ''
+        'body' => ''
     ];
 
-    /**
-     * @var string[]
-     */
     public $editState = [
         'body' => ''
     ];
 
-    /**
-     * @var string[]
-     */
     protected $validationAttributes = [
         'replyState.body' => 'Reply',
-        'editState.body' => 'Reply',
-
+        'editState.body' => 'Reply'
     ];
 
-    /**
-     * @var string[]
-     */
     protected $listeners = [
         'refresh' => '$refresh',
         'getUsers'
