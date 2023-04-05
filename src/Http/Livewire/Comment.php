@@ -21,6 +21,7 @@ class Comment extends Component
     public $users = [];
 
     public $isReplying = false;
+    public $hasReplies = false;
 
     public $showOptions = false;
 

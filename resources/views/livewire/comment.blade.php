@@ -90,7 +90,12 @@
                             Reply
                         </button>
                     @endif
-
+                    @if($comment->children->count())
+                        <button type="button" wire:click="$toggle('hasReplies')"
+                                class="flex items-center text-sm text-gray-500 hover:underline dark:text-gray-400">
+                            View all Replies
+                        </button>
+                    @endif
                 </div>
             @endauth
         </article>
@@ -104,11 +109,13 @@
            'button'=>'Post Reply'
        ])
     @endif
-    <article class="p-1 mb-1 ml-1 lg:ml-12 border-t border-gray-200 dark:border-gray-700 dark:bg-gray-900">
-        @foreach($comment->children as $child)
-            <livewire:comment :comment="$child" :key="$child->id"/>
-        @endforeach
-    </article>
+    @if($hasReplies)
+        <article class="p-1 mb-1 ml-1 lg:ml-12 border-t border-gray-200 dark:border-gray-700 dark:bg-gray-900">
+            @foreach($comment->children as $child)
+                <livewire:comment :comment="$child" :key="$child->id"/>
+            @endforeach
+        </article>
+    @endif
     <script>
         function detectAtSymbol() {
             const textarea = document.getElementById('reply-comment');
