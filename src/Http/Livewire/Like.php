@@ -7,13 +7,12 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class Like extends Component
 {
 
     public $comment;
-    public int $count;
+    public $count;
 
 
     public function mount(\Usamamuneerchaudhary\Commentify\Models\Comment $comment): void
