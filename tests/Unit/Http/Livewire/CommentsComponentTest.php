@@ -162,16 +162,9 @@ class CommentsComponentTest extends TestCase
     {
         $this->actingAs($this->user);
 
-        $view = Livewire::test(Comments::class, ['model' => $this->article])
+        Livewire::test(Comments::class, ['model' => $this->article])
             ->assertViewIs('commentify::livewire.comments')
             ->assertViewHas('comments');
     }
-
-//
-//
-//
-//
-//
-
 
 }
