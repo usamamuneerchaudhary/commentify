@@ -46,7 +46,7 @@ trait HasLikes
         if (auth()->user()) {
             return $this->likes()->where('user_id', auth()->user()->id)->where('comment_id', $this->id)->delete();
         }
-        
+
         if ($ip && $userAgent) {
             return $this->likes()->forIp($ip)->forUserAgent($userAgent)->delete();
         }
