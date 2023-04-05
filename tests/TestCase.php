@@ -12,7 +12,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
      * @param $app
      * @return string[]
      */
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app): array
     {
         return [
             CommentifyServiceProvider::class,
@@ -20,6 +20,9 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         ];
     }
 
+    /**
+     * @return void
+     */
     public function setUp(): void
     {
         parent::setUp();
@@ -31,6 +34,9 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         ]);
     }
 
+    /**
+     * @return void
+     */
     public function tearDown(): void
     {
         Schema::drop('articles');
@@ -38,7 +44,11 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         Schema::drop('comments');
     }
 
-    protected function getEnvironmentSetUp($app)
+    /**
+     * @param $app
+     * @return void
+     */
+    protected function getEnvironmentSetUp($app): void
     {
         $app['config']->set('database.default', 'testbench');
         $app['config']->set('database.connections.testbench', [
@@ -68,17 +78,6 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             $table->string('slug')->unique();
             $table->timestamps();
         });
-    }
-
-    protected function createComment($body, $model, $modelId, $user_id, $parent_id = null)
-    {
-        return CommentStub::create([
-            'body' => $body,
-            'user_id' => $user_id,
-            'parent_id' => $parent_id ?? null,
-            'commentable_type' => $model,
-            'commentable_id' => $modelId
-        ]);
     }
 
 }
