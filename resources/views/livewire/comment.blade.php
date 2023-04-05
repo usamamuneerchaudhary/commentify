@@ -10,6 +10,8 @@
     @else
         <article class="p-6 mb-1 text-base bg-white rounded-lg dark:bg-gray-900">
             <footer class="flex justify-between items-center mb-1">
+
+
                 <div class="flex items-center">
 
                     <p class="inline-flex items-center mr-3 text-sm text-gray-900 dark:text-white"><img
@@ -80,6 +82,7 @@
             </p>
 
             <div class="flex items-center mt-4 space-x-4">
+                <livewire:like :comment="$comment" :key="$comment->id"/>
                 @auth
                     @if($comment->isParent())
                         <button type="button" wire:click="$toggle('isReplying')"

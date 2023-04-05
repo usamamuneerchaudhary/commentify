@@ -8,6 +8,7 @@ use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Usamamuneerchaudhary\Commentify\Http\Livewire\Comment;
 use Usamamuneerchaudhary\Commentify\Http\Livewire\Comments;
+use Usamamuneerchaudhary\Commentify\Http\Livewire\Like;
 use Usamamuneerchaudhary\Commentify\Policies\CommentPolicy;
 
 class CommentifyServiceProvider extends ServiceProvider
@@ -46,5 +47,6 @@ class CommentifyServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'commentify');
         Livewire::component('comments', Comments::class);
         Livewire::component('comment', Comment::class);
+        Livewire::component('like', Like::class);
     }
 }
