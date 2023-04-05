@@ -1,6 +1,6 @@
 {
     "name": "usamamuneerchaudhary/commentify",
-    "description": "Simple Laravel Livewire Commenting System",
+    "description": "Easy Laravel Livewire Comments with TailwindCSS UI",
     "keywords": [
         "usamamuneerchaudhary",
         "laravel-livewire",
