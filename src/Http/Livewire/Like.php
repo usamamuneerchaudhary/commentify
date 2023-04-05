@@ -23,6 +23,8 @@ class Like extends Component
 
     public function like(): void
     {
+        $ip = request()->ip();
+        $userAgent = request()->userAgent();
         if ($this->comment->isLiked()) {
             $this->comment->removeLike();
 
@@ -33,7 +35,7 @@ class Like extends Component
             ]);
 
             $this->count++;
-        } elseif (($ip = request()->ip()) && ($userAgent = request()->userAgent())) {
+        } elseif ($ip && $userAgent) {
             $this->comment->likes()->create([
                 'ip' => $ip,
                 'user_agent' => $userAgent,
