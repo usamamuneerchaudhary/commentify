@@ -26,8 +26,8 @@
     },
     "require": {
         "php": "^8.1",
-        "illuminate/database": ">=v10.1.4",
-        "illuminate/support": ">=v10.1.4",
+        "illuminate/database": "*",
+        "illuminate/support": "*",
         "livewire/livewire": "^2.12"
     },
     "require-dev": {
