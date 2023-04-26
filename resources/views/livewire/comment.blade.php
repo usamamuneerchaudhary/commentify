@@ -137,13 +137,21 @@
     <script>
         function detectAtSymbol() {
             const textarea = document.getElementById('reply-comment');
+
+            // Check if the textarea element exists
+            if (!textarea) {
+                console.warn("Couldn't find the 'reply-comment' element.");
+                return;
+            }
+
             const cursorPosition = textarea.selectionStart;
             const textBeforeCursor = textarea.value.substring(0, cursorPosition);
             const atSymbolPosition = textBeforeCursor.lastIndexOf('@');
 
             if (atSymbolPosition !== -1) {
                 const searchTerm = textBeforeCursor.substring(atSymbolPosition + 1);
-                if (searchTerm.length > 0) {
+
+                if (searchTerm.trim().length > 0) {
                     window.livewire.emit('getUsers', searchTerm);
                 }
             }
