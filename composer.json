@@ -28,7 +28,7 @@
         "php": "^8.1",
         "illuminate/database": "*",
         "illuminate/support": "*",
-        "livewire/livewire": "^2.12"
+        "livewire/livewire": "^3.0"
     },
     "require-dev": {
         "orchestra/testbench": "^v8.0.4",

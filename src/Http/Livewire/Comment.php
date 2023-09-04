@@ -9,6 +9,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Str;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Usamamuneerchaudhary\Commentify\Models\User;
 
@@ -40,10 +41,7 @@ class Comment extends Component
         'editState.body' => 'Reply'
     ];
 
-    protected $listeners = [
-        'refresh' => '$refresh',
-        'getUsers'
-    ];
+
 
     /**
      * @param $isEditing
@@ -82,7 +80,6 @@ class Comment extends Component
     {
         $this->authorize('destroy', $this->comment);
         $this->comment->delete();
-        $this->emitUp('refresh');
         $this->showOptions = false;
     }
 
@@ -98,6 +95,7 @@ class Comment extends Component
     /**
      * @return void
      */
+    #[On('refresh')]
     public function postReply(): void
     {
         if (!$this->comment->isParent()) {
@@ -116,7 +114,7 @@ class Comment extends Component
         ];
         $this->isReplying = false;
         $this->showOptions = false;
-        $this->emitSelf('refresh');
+        $this->dispatch('refresh')->self();
     }
 
     /**
@@ -142,6 +140,7 @@ class Comment extends Component
      * @param $searchTerm
      * @return void
      */
+    #[On('getUsers')]
     public function getUsers($searchTerm): void
     {
         if (!empty($searchTerm)) {

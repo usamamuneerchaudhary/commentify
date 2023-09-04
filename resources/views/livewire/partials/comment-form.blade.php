@@ -1,4 +1,4 @@
-<form class="mb-6" wire:submit.prevent="{{$method}}">
+<form class="mb-6" wire:submit="{{$method}}">
     @if (session()->has('message'))
         <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)">
             <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
@@ -17,7 +17,7 @@
                               dark:text-white dark:placeholder-gray-400 dark:bg-gray-800 @error($state.'.body')
                               border-red-500 @enderror"
                   placeholder="Write a comment..."
-                  wire:model.defer="{{$state}}.body"
+                  wire:model.live="{{$state}}.body"
                   oninput="detectAtSymbol()"
         ></textarea>
         @if(!empty($users) && $users->count() > 0)

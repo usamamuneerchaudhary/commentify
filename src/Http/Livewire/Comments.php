@@ -6,6 +6,7 @@ namespace Usamamuneerchaudhary\Commentify\Http\Livewire;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -51,6 +52,7 @@ class Comments extends Component
     /**
      * @return void
      */
+    #[On('refresh')]
     public function postComment(): void
     {
         $this->validate([

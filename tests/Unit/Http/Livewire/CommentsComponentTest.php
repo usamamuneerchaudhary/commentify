@@ -140,7 +140,7 @@ class CommentsComponentTest extends TestCase
 
         Livewire::test(Comments::class, ['model' => $this->article])
             ->assertSee(10)
-            ->assertSeeHtml('<span wire:key="paginator-page-1-page2">')
+            ->assertSeeHtml('<span wire:key="paginator-page-page1">')
             ->assertSee(2);//second page link
     }
 

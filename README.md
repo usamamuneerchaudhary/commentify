@@ -25,6 +25,7 @@ powerful tool for enhancing user engagement and collaboration.
 
 - Easy to integrate
 - Supports Laravel 10+
+- Supports Livewire 3
 - Livewire powered commenting system
 - Tailwind UI
 - Add comments to any model

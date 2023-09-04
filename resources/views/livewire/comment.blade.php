@@ -82,7 +82,7 @@
             </p>
 
             <div class="flex items-center mt-4 space-x-4">
-                <livewire:like :comment="$comment" :key="$comment->id"/>
+                <livewire:like :$comment :key="$comment->id"/>
                 @auth
                     @if($comment->isParent())
                         <button type="button" wire:click="$toggle('isReplying')"
@@ -130,7 +130,7 @@
 
         <article class="p-1 mb-1 ml-1 lg:ml-12 border-t border-gray-200 dark:border-gray-700 dark:bg-gray-900">
             @foreach($comment->children as $child)
-                <livewire:comment :comment="$child" :key="$child->id"/>
+                <livewire:comment :$child :key="$child->id"/>
             @endforeach
         </article>
     @endif
@@ -152,7 +152,7 @@
                 const searchTerm = textBeforeCursor.substring(atSymbolPosition + 1);
 
                 if (searchTerm.trim().length > 0) {
-                    window.livewire.emit('getUsers', searchTerm);
+                    window.livewire.dispatch('getUsers', searchTerm);
                 }
             }
         }

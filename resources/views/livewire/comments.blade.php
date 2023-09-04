@@ -19,7 +19,7 @@
             @endauth
             @if($comments->count())
                 @foreach($comments as $comment)
-                    <livewire:comment :comment="$comment" :key="$comment->id"/>
+                    <livewire:comment :$comment :key="$comment->id"/>
                 @endforeach
                 {{$comments->links()}}
             @else

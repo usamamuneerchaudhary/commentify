@@ -128,7 +128,7 @@ class CommentComponentTest extends TestCase
                 'comment' => $this->comment
             ])
                 ->call('deleteComment')
-                ->emit('refresh')
+                ->dispatch('refresh')
                 ->set('showOptions', false);
             $this->assertTrue($this->comment->delete());
             $this->assertDatabaseHas('comments', []);
@@ -260,7 +260,7 @@ class CommentComponentTest extends TestCase
         $this->assertNotNull($this->comment);
         Livewire::test(LivewireComment::class, ['comment' => $this->comment])
             ->call('deleteComment')
-            ->emit('refresh')
+            ->dispatch('refresh')
             ->set('showOptions', false);
         $this->assertTrue($this->comment->delete());
         $this->assertDatabaseHas('comments', []);
