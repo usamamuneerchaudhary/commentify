@@ -13,7 +13,6 @@
 
 
                 <div class="flex items-center">
-
                     <p class="inline-flex items-center mr-3 text-sm text-gray-900 dark:text-white"><img
                             class="mr-2 w-6 h-6 rounded-full"
                             src="{{$comment->user->avatar()}}"
@@ -68,10 +67,6 @@
                                         </button>
                                     </li>
                                 @endcan
-                                {{--                                <li>--}}
-                                {{--                                    <a href="#"--}}
-                                {{--                                       class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Report</a>--}}
-                                {{--                                </li>--}}
                             </ul>
                         </div>
                     @endif
@@ -130,7 +125,7 @@
 
         <article class="p-1 mb-1 ml-1 lg:ml-12 border-t border-gray-200 dark:border-gray-700 dark:bg-gray-900">
             @foreach($comment->children as $child)
-                <livewire:comment :$child :key="$child->id"/>
+                <livewire:comment :comment="$child" :key="$child->id"/>
             @endforeach
         </article>
     @endif
