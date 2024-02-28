@@ -19,6 +19,8 @@ class Comments extends Component
     public $users = [];
 
     public $showDropdown = false;
+    
+    protected $numberOfPaginatorsRendered = [];
 
     public $newCommentState = [
         'body' => ''
@@ -43,7 +45,7 @@ class Comments extends Component
             ->with('user', 'children.user', 'children.children')
             ->parent()
             ->latest()
-            ->paginate(config('commentify.pagination_count', 10));
+            ->paginate(config('commentify.pagination_count',10));
         return view('commentify::livewire.comments', [
             'comments' => $comments
         ]);
