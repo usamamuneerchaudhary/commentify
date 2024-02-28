@@ -76,11 +76,13 @@ class Comment extends Component
      * @return void
      * @throws AuthorizationException
      */
+    #[On('refresh')]
     public function deleteComment(): void
     {
         $this->authorize('destroy', $this->comment);
         $this->comment->delete();
         $this->showOptions = false;
+        $this->dispatch('refresh');
     }
 
     /**

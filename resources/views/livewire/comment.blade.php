@@ -132,10 +132,7 @@
     <script>
         function detectAtSymbol() {
             const textarea = document.getElementById('reply-comment');
-
-            // Check if the textarea element exists
             if (!textarea) {
-                console.warn("Couldn't find the 'reply-comment' element.");
                 return;
             }
 
@@ -146,7 +143,7 @@
             if (atSymbolPosition !== -1) {
                 const searchTerm = textBeforeCursor.substring(atSymbolPosition + 1);
                 if (searchTerm.trim().length > 0) {
-                    @this.dispatchSelf('getUsers', { searchTerm: searchTerm});
+                    @this.dispatch('getUsers', { searchTerm: searchTerm});
                 }
             }
         }
