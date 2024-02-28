@@ -42,6 +42,11 @@ class CommentifyServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../../tailwind.config.js' => base_path('tailwind.config.js'),
             ], 'commentify-tailwind-config');
+    
+            // Add this line to publish your views
+            $this->publishes([
+                __DIR__.'/../../resources/views' => resource_path('views/vendor/commentify'),
+            ], 'commentify-views');
         }
         $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'commentify');
