@@ -12,24 +12,23 @@ return new class extends Migration {
     {
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('parent_id')->nullable()->constrained('comments')->onDelete('cascade');
+            if (config('commentify.user_uuid')) {
+                $table->foreignUuid('user_id')->constrained()->onDelete('cascade');
+            } else {
+                $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            }
+
+            if (config('commentify.parent_uuid')) {
+                $table->foreignUuid('parent_id')->nullable()->constrained('comments')->onDelete('cascade');
+            } else {
+                $table->foreignId('parent_id')->nullable()->constrained('comments')->onDelete('cascade');
+            }
             $table->text('body');
             $table->morphs('commentable');
             $table->softDeletes();
             $table->timestamps();
-        });
 
-        Schema::table('comments', function (Blueprint $table) {
-            if (config('commentify.user_uuid')) {
-                $table->foreignUuid('user_id')->constrained()->onDelete('cascade')->change();
-            }
-
-            if (config('commentify.parent_uuid')) {
-                $table->foreignUuid('parent_id')->nullable()->constrained('comments')->onDelete('cascade')->change();
-            }
-
-            $table->index('parent_id');
+            $table->index('commentable_id');
         });
     }
 
