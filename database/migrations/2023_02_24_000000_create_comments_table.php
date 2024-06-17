@@ -19,6 +19,18 @@ return new class extends Migration {
             $table->softDeletes();
             $table->timestamps();
         });
+
+        Schema::table('comments', function (Blueprint $table) {
+            if (config('commentify.user_uuid')) {
+                $table->foreignUuid('user_id')->constrained()->onDelete('cascade')->change();
+            }
+
+            if (config('commentify.parent_uuid')) {
+                $table->foreignUuid('parent_id')->nullable()->constrained('comments')->onDelete('cascade')->change();
+            }
+
+            $table->index('parent_id');
+        });
     }
 
     /**

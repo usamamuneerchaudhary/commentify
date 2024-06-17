@@ -18,6 +18,14 @@ return new class extends Migration {
             $table->string('user_agent')->nullable();
             $table->timestamps();
         });
+
+        Schema::table('comment_likes', function (Blueprint $table) {
+            if (config('commentify.user_uuid')) {
+                $table->foreignUuid('user_id')->nullable()->change();
+            }
+
+            $table->index('comment_id');
+        });
     }
 
     /**

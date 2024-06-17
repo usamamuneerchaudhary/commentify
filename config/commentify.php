@@ -5,5 +5,6 @@ return [
     'pagination_count' => 10,
     'css_framework' => 'tailwind', // or 'bootstrap'
     'comment_nesting' => true, // set to false if you don't want to allow nesting of comments
-
+    'user_uuid' => false, // Set to true if the Model uses Uuid
+    'parent_uuid' => false // Set to true if the Model uses Uuid
 ];
