@@ -24,17 +24,22 @@ powerful tool for enhancing user engagement and collaboration.
 ## Some Features Highlight
 
 - Easy to integrate
-- Supports Laravel 10+
+- Laravel 12+ support
 - Supports Livewire 3
 - Livewire powered commenting system
 - Tailwind UI
+- Read-only mode (configurable via `config/commentify.php`)
 - Add comments to any model
 - Nested Comments
+- Temporary user comment bans (block users from commenting until a set date)
 - Comments Pagination
 - Youtube style Like/unlike feature
 - Guest like/unlike of comments (based on `IP` & `UserAgent`)
 - Mention User with @ in Replies/Edits
 - Markdown Support
+- Full language/translation support (publish and override as needed)
+- Customizable views (publish and override as needed)
+- Policy-based authorization for all comment actions
 
 ## Prerequisites
 
@@ -61,10 +66,13 @@ Usamamuneerchaudhary\Commentify\Providers\CommentifyServiceProvider::class,
 Once the package is installed, you can run migrations,
 ```php artisan migrate```
 
-### Publish Config File
+### Publish config, views, and lang files as needed
 
 ```php
- php artisan vendor:publish --tag="commentify-config"
+php artisan vendor:publish --tag="commentify-config"
+php artisan vendor:publish --tag=commentify-views
+php artisan vendor:publish --tag=commentify-lang
+php artisan vendor:publish --tag=commentify-migrations
 ```
 This will publish `commentify.php` file in config directory. Here you can configure user route and pagination count etc.
 
@@ -104,6 +112,46 @@ class User extends Model
     use HasUserAvatar;
 }
 ```
+---
+## 🔒 Read-Only Mode
+
+Temporarily disable all commenting (for maintenance, etc):
+
+- In `config/commentify.php`:
+    ```php
+    'read_only' => true,
+    ```
+
+---
+
+## 🚫 Temporarily Block Users from Commenting
+
+- Add the provided migration to your app to add a `comment_banned_until` column to your `users` table.
+- Add the `HasCommentBan` trait to your User model:
+    ```php
+    use Usamamuneerchaudhary\Commentify\Traits\HasCommentBan;
+    class User extends Authenticatable
+    {
+        use HasCommentBan;
+    }
+    ```
+- Set `comment_banned_until` to a future date to block a user.
+
+---
+
+## 🌍 Language Support
+
+- All strings are translatable.
+- Publish lang files and override as needed in `lang/vendor/commentify`.
+
+---
+
+## 🛡️ Authorization
+
+- All comment actions use Laravel policies.
+- You can customize permissions and ban logic in your `CommentPolicy`.
+
+---
 
 ## Tests
 
