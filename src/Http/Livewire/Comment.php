@@ -100,6 +100,20 @@ class Comment extends Component
     #[On('refresh')]
     public function postReply(): void
     {
+        if (config('commentify.read_only')) {
+            session()->flash('message', __('commentify::commentify.comments.read_only_message'));
+            session()->flash('alertType', 'warning');
+            return;
+        }
+
+        try {
+            $this->authorize('create', \Usamamuneerchaudhary\Commentify\Models\Comment::class);
+        } catch (AuthorizationException $e) {
+            session()->flash('message', __('commentify::commentify.comments.banned_message'));
+            session()->flash('alertType', 'error');
+            return;
+        }
+
         if (!$this->comment->isParent()) {
             return;
         }

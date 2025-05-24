@@ -42,14 +42,20 @@ class CommentifyServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../../tailwind.config.js' => base_path('tailwind.config.js'),
             ], 'commentify-tailwind-config');
-    
+
             // Add this line to publish your views
             $this->publishes([
                 __DIR__.'/../../resources/views' => resource_path('views/vendor/commentify'),
             ], 'commentify-views');
+
+            // Publish language files
+            $this->publishes([
+                __DIR__.'/../../lang' => resource_path('../lang/vendor/commentify'),
+            ], 'commentify-lang');
         }
         $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'commentify');
+        $this->loadTranslationsFrom(__DIR__.'/../../lang', 'commentify');
         Livewire::component('comments', Comments::class);
         Livewire::component('comment', Comment::class);
         Livewire::component('like', Like::class);

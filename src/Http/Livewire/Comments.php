@@ -2,24 +2,26 @@
 
 namespace Usamamuneerchaudhary\Commentify\Http\Livewire;
 
-
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Database\Eloquent\Model;
 
 class Comments extends Component
 {
-    use WithPagination;
+    use WithPagination, AuthorizesRequests;
 
-    public $model;
+    public Model $model;
 
     public $users = [];
 
     public $showDropdown = false;
-    
+
     protected $numberOfPaginatorsRendered = [];
 
     public $newCommentState = [
@@ -33,6 +35,11 @@ class Comments extends Component
     protected $validationAttributes = [
         'newCommentState.body' => 'comment'
     ];
+
+    public function mount(Model $model)
+    {
+        $this->model = $model;
+    }
 
     /**
      * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application|null
@@ -57,6 +64,21 @@ class Comments extends Component
     #[On('refresh')]
     public function postComment(): void
     {
+        if (config('commentify.read_only')) {
+            session()->flash('message', __('commentify::commentify.comments.read_only_message'));
+            session()->flash('alertType', 'warning');
+            return;
+        }
+
+        // Authorize using the CommentPolicy@create method
+        try {
+            $this->authorize('create', \Usamamuneerchaudhary\Commentify\Models\Comment::class);
+        } catch (AuthorizationException $e) {
+            session()->flash('message', __('commentify::commentify.comments.banned_message'));
+            session()->flash('alertType', 'error');
+            return;
+        }
+
         $this->validate([
             'newCommentState.body' => 'required'
         ]);
@@ -74,5 +96,4 @@ class Comments extends Component
         $this->resetPage();
         session()->flash('message', 'Comment Posted Successfully!');
     }
-
 }
