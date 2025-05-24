@@ -24,7 +24,9 @@ class CommentComponentTest extends TestCase
         $this->episode = \EpisodeStub::create([
             'slug' => \Illuminate\Support\Str::slug('Episode One')
         ]);
-        $this->user = User::factory()->create();
+        $this->user = User::factory()->create([
+            'comment_banned_until' => null,
+        ]);
 
         $this->comment = $this->article->comments()->create([
             'body' => 'This is a test comment!',
@@ -280,6 +282,10 @@ class CommentComponentTest extends TestCase
     /** @test */
     public function it_shows_validation_error_on_reply_post_if_body_empty()
     {
+        $user = User::factory()->create([
+            'comment_banned_until' => null,
+        ]);
+        $this->actingAs($user);
         Livewire::test(LivewireComment::class, ['comment' => $this->comment])
             ->set('isReplying', true)
             ->set('replyState.body', '')

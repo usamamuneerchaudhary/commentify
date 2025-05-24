@@ -44,15 +44,14 @@ class Comments extends Component
     /**
      * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application|null
      */
-    public function render(
-    ): \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\View|\Illuminate\Contracts\Foundation\Application|null
+    public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\View|\Illuminate\Contracts\Foundation\Application|null
     {
         $comments = $this->model
             ->comments()
             ->with('user', 'children.user', 'children.children')
             ->parent()
             ->latest()
-            ->paginate(config('commentify.pagination_count',10));
+            ->paginate(config('commentify.pagination_count', 10));
         return view('commentify::livewire.comments', [
             'comments' => $comments
         ]);
@@ -71,13 +70,7 @@ class Comments extends Component
         }
 
         // Authorize using the CommentPolicy@create method
-        try {
-            $this->authorize('create', \Usamamuneerchaudhary\Commentify\Models\Comment::class);
-        } catch (AuthorizationException $e) {
-            session()->flash('message', __('commentify::commentify.comments.banned_message'));
-            session()->flash('alertType', 'error');
-            return;
-        }
+        $this->authorize('create', \Usamamuneerchaudhary\Commentify\Models\Comment::class);
 
         $this->validate([
             'newCommentState.body' => 'required'

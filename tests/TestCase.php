@@ -26,11 +26,16 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        \Route::get('login', function () {
+            return 'login page';
+        })->name('login');
+        $this->app->register(\Flux\FluxServiceProvider::class);
         Model::unguard();
 
         $this->artisan('migrate', [
             '--database' => 'testbench',
-            '--realpath' => realpath(__DIR__.'/../database/migrations')
+            '--realpath' => realpath(__DIR__ . '/../database/migrations')
         ]);
     }
 

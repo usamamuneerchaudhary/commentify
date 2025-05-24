@@ -22,7 +22,9 @@ class CommentsComponentTest extends TestCase
         $this->episode = \EpisodeStub::create([
             'slug' => \Illuminate\Support\Str::slug('Episode One')
         ]);
-        $this->user = User::factory()->create();
+        $this->user = User::factory()->create([
+            'comment_banned_until' => null, // Not banned
+        ]);
 
         $this->comment = $this->article->comments()->create([
             'body' => 'This is a test comment!',
@@ -116,6 +118,11 @@ class CommentsComponentTest extends TestCase
     /** @test */
     public function it_shows_validation_error_on_adding_comment_if_required_fields_empty()
     {
+        $user = User::factory()->create([
+            'comment_banned_until' => null,
+        ]);
+        $this->actingAs($user);
+
         Livewire::test(Comments::class, ['model' => $this->article])
             ->set('newCommentState.body', '')
             ->call('postComment')

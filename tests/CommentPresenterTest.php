@@ -24,7 +24,9 @@ class CommentPresenterTest extends TestCase
         $this->article = \ArticleStub::create([
             'slug' => \Illuminate\Support\Str::slug('Article One')
         ]);
-        $this->user = User::factory()->create();
+        $this->user = User::factory()->create([
+            'comment_banned_until' => null, // Not banned
+        ]);
 
         $this->comment = $this->article->comments()->create([
             'body' => 'This is a test comment',

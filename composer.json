@@ -29,6 +29,7 @@
         "illuminate/database": "^12.0",
         "illuminate/support": "^12.0",
         "livewire/livewire": "^3.0",
+        "livewire/flux": "^2.1.1",
         "laravel/framework": "^12.0",
         "guzzlehttp/guzzle": "^7.9",
         "laravel/telescope": "^5.0"
