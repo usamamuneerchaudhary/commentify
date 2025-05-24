@@ -17,20 +17,18 @@ trait HasLikes
     }
 
     /**
-     * @return false|int
+     * @return bool
      */
-    public function isLiked(): bool|int
+    public function isLiked(): bool
     {
         $ip = request()->ip();
         $userAgent = request()->userAgent();
         if (auth()->user()) {
-            return User::with('likes')->whereHas('likes', function ($q) {
-                $q->where('comment_id', $this->id);
-            })->count();
+            return $this->likes()->where('user_id', auth()->user()->id)->exists();
         }
 
         if ($ip && $userAgent) {
-            return $this->likes()->forIp($ip)->forUserAgent($userAgent)->count();
+            return $this->likes()->forIp($ip)->forUserAgent($userAgent)->exists();
         }
 
         return false;
