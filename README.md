@@ -55,7 +55,7 @@ You can install the package via composer:
 
 ### Register Service Provider
 
-Add the service provider in `config/app.php`:
+Add the service provider in `bootstrap/providers.php`:
 
 ```php
 Usamamuneerchaudhary\Commentify\Providers\CommentifyServiceProvider::class,
@@ -63,7 +63,9 @@ Usamamuneerchaudhary\Commentify\Providers\CommentifyServiceProvider::class,
 
 ### Run Migrations
 
-Once the package is installed, you can run migrations,
+Copy the migrations from the migrations folder first to your migrations.
+
+Afterwards you can run migrations,
 ```php artisan migrate```
 
 ### Publish config, views, and lang files as needed
@@ -72,7 +74,6 @@ Once the package is installed, you can run migrations,
 php artisan vendor:publish --tag="commentify-config"
 php artisan vendor:publish --tag=commentify-views
 php artisan vendor:publish --tag=commentify-lang
-php artisan vendor:publish --tag=commentify-migrations
 ```
 This will publish `commentify.php` file in config directory. Here you can configure user route and pagination count etc.
 
