@@ -21,67 +21,84 @@ used with "@" to tag specific users in replies and edits, while Markdown support
 comments. Whether you're building a blog, an e-commerce platform, or any other type of web application, Commentify is a
 powerful tool for enhancing user engagement and collaboration.
 
-## Some Features Highlight
+## Features
 
-- Easy to integrate
-- Laravel 12+ support
-- Supports Livewire 3
-- Livewire powered commenting system
-- Tailwind UI
-- Read-only mode (configurable via `config/commentify.php`)
-- Add comments to any model
-- Nested Comments
-- Temporary user comment bans (block users from commenting until a set date)
-- Comments Pagination
-- Youtube style Like/unlike feature
-- Guest like/unlike of comments (based on `IP` & `UserAgent`)
-- Mention User with @ in Replies/Edits
-- Markdown Support
-- Full language/translation support (publish and override as needed)
-- Customizable views (publish and override as needed)
-- Policy-based authorization for all comment actions
+- ✅ Easy to integrate
+- ✅ Laravel 12+ support
+- ✅ Livewire 3 support
+- ✅ Livewire powered commenting system
+- ✅ TailwindCSS UI
+- ✅ Read-only mode (configurable via `config/commentify.php`)
+- ✅ Add comments to any model
+- ✅ Nested Comments
+- ✅ Temporary user comment bans (block users from commenting until a set date)
+- ✅ Comments Pagination
+- ✅ YouTube style Like/unlike feature
+- ✅ Guest like/unlike of comments (based on `IP` & `UserAgent`)
+- ✅ Mention User with @ in Replies/Edits
+- ✅ Markdown Support
+- ✅ Full language/translation support (publish and override as needed)
+- ✅ Customizable views (publish and override as needed)
+- ✅ Policy-based authorization for all comment actions
 
 ## Prerequisites
 
-- [Livewire](https://laravel-livewire.com/docs/2.x/installation)
+- PHP 8.2 or higher
+- Laravel 12 or higher
+- [Livewire 3](https://livewire.laravel.com/docs/installation)
 - [TailwindCSS](https://tailwindcss.com/)
-- [AlpineJS](https://alpinejs.dev/essentials/installation)
+- [AlpineJS](https://alpinejs.dev/essentials/installation) (included with Livewire 3)
 
 ## Installation Guide
 
 You can install the package via composer:
 
-```composer require usamamuneerchaudhary/commentify```
+```bash
+composer require usamamuneerchaudhary/commentify
+```
 
-### Register Service Provider
+### Service Provider Registration
 
-Add the service provider in `config/app.php`:
+The service provider is **automatically discovered** in Laravel 12+ when installed via Composer from Packagist.
+
+However, if you're using a local development setup (e.g., path repository with symlinks) or need to manually register it, add it to `bootstrap/providers.php`:
 
 ```php
-Usamamuneerchaudhary\Commentify\Providers\CommentifyServiceProvider::class,
+<?php
+
+return [
+    App\Providers\AppServiceProvider::class,
+    // ... other providers
+    Usamamuneerchaudhary\Commentify\Providers\CommentifyServiceProvider::class,
+];
 ```
+
+> **Note:** For local development with symlinked packages, explicit registration in `bootstrap/providers.php` ensures migrations and other package resources are loaded correctly.
 
 ### Run Migrations
 
-Once the package is installed, you can run migrations,
-```php artisan migrate```
+Once the package is installed, you can run migrations:
+
+```bash
+php artisan migrate
+```
 
 ### Publish config, views, and lang files as needed
 
-```php
+```bash
 php artisan vendor:publish --tag="commentify-config"
 php artisan vendor:publish --tag=commentify-views
 php artisan vendor:publish --tag=commentify-lang
 php artisan vendor:publish --tag=commentify-migrations
 ```
+
 This will publish `commentify.php` file in config directory. Here you can configure user route and pagination count etc.
 
-### Publish `tailwind.config.js` file, 
+### Publish `tailwind.config.js` file
 
-This package utilizes TailwindCSS, and use some custom configurations. You can publish package's `tailwind.config.
-js` file by running the following command:
+This package utilizes TailwindCSS, and uses some custom configurations. You can publish the package's `tailwind.config.js` file by running the following command:
 
-```php
+```bash
 php artisan vendor:publish --tag="commentify-tailwind-config"
 ```
 
@@ -155,7 +172,11 @@ Temporarily disable all commenting (for maintenance, etc):
 
 ## Tests
 
-`composer test`
+Run the test suite:
+
+```bash
+composer test
+```
 
 ## Security
 

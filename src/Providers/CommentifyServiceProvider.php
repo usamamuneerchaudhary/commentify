@@ -53,7 +53,12 @@ class CommentifyServiceProvider extends ServiceProvider
                 __DIR__.'/../../lang' => resource_path('../lang/vendor/commentify'),
             ], 'commentify-lang');
         }
-        $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
+        
+        $migrationPath = realpath(__DIR__.'/../../database/migrations');
+        if ($migrationPath && is_dir($migrationPath)) {
+            $this->loadMigrationsFrom($migrationPath);
+        }
+        
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'commentify');
         $this->loadTranslationsFrom(__DIR__.'/../../lang', 'commentify');
         Livewire::component('comments', Comments::class);
