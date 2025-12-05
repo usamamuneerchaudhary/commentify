@@ -57,7 +57,7 @@ class Comments extends Component
     {
         $query = $this->model
             ->comments()
-            ->with('user', 'children.user', 'children.children')
+            ->with('user', 'likes', 'children.user', 'children.likes', 'children.children')
             ->parent()
             ->withCount('children');
 
