@@ -35,7 +35,8 @@ class Comment extends Component
     public $alreadyReported = false;
 
     public $reportState = [
-        'reason' => ''
+        'reason' => '',
+        'additional_details' => ''
     ];
 
     public $replyState = [
@@ -205,16 +206,24 @@ class Comment extends Component
             return;
         }
 
+        $reportReasons = config('commentify.report_reasons', ['spam', 'inappropriate', 'offensive', 'other']);
+        
         $this->validate([
-            'reportState.reason' => 'required|min:3|max:1000'
+            'reportState.reason' => 'required|in:' . implode(',', $reportReasons),
+            'reportState.additional_details' => 'nullable|max:500'
         ]);
+
+        $reason = $this->reportState['reason'];
+        if (!empty($this->reportState['additional_details'])) {
+            $reason .= ': ' . $this->reportState['additional_details'];
+        }
 
         $report = CommentReport::create([
             'comment_id' => $this->comment->id,
             'user_id' => auth()->id(),
             'ip' => request()->ip(),
             'user_agent' => request()->userAgent(),
-            'reason' => $this->reportState['reason'],
+            'reason' => $reason,
             'status' => 'pending',
         ]);
 
@@ -222,7 +231,7 @@ class Comment extends Component
             event(new CommentReported($this->comment, $report));
         }
 
-        $this->reportState = ['reason' => ''];
+        $this->reportState = ['reason' => '', 'additional_details' => ''];
         $this->isReporting = false;
         $this->alreadyReported = false;
         $this->showOptions = false;
