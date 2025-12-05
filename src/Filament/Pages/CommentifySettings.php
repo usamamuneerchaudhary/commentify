@@ -31,7 +31,7 @@ class CommentifySettings extends Page implements HasForms
 
     public function getView(): string
     {
-        return 'commentify::filament.pages.settings';
+        return 'commentify::pages.settings';
     }
 
     public function form(Schema $schema): Schema
@@ -40,6 +40,15 @@ class CommentifySettings extends Page implements HasForms
             ->schema([
                 Section::make('General Settings')
                     ->schema([
+                        Forms\Components\Select::make('css_framework')
+                            ->label('CSS Framework')
+                            ->options([
+                                'tailwind' => 'Tailwind CSS',
+                                'bootstrap' => 'Bootstrap',
+                            ])
+                            ->default('tailwind')
+                            ->required()
+                            ->helperText('Choose the CSS framework for comment components'),
                         Forms\Components\TextInput::make('users_route_prefix')
                             ->label('Users Route Prefix')
                             ->default('users')
