@@ -7,6 +7,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Livewire\Component;
+use Usamamuneerchaudhary\Commentify\Events\CommentLiked;
 
 class Like extends Component
 {
@@ -35,6 +36,10 @@ class Like extends Component
             ]);
 
             $this->count++;
+
+            if (config('commentify.enable_notifications', false)) {
+                event(new CommentLiked($this->comment, auth()->id()));
+            }
         } elseif ($ip && $userAgent) {
             $this->comment->likes()->create([
                 'ip' => $ip,

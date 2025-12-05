@@ -11,6 +11,8 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Usamamuneerchaudhary\Commentify\Events\CommentReported;
+use Usamamuneerchaudhary\Commentify\Models\CommentReport;
 use Usamamuneerchaudhary\Commentify\Models\User;
 
 class Comment extends Component
@@ -28,6 +30,14 @@ class Comment extends Component
 
     public $isEditing = false;
 
+    public $isReporting = false;
+
+    public $alreadyReported = false;
+
+    public $reportState = [
+        'reason' => ''
+    ];
+
     public $replyState = [
         'body' => ''
     ];
@@ -38,7 +48,8 @@ class Comment extends Component
 
     protected $validationAttributes = [
         'replyState.body' => 'Reply',
-        'editState.body' => 'Reply'
+        'editState.body' => 'Reply',
+        'reportState.reason' => 'reason'
     ];
 
 
@@ -82,6 +93,24 @@ class Comment extends Component
         $this->comment->delete();
         $this->showOptions = false;
         $this->dispatch('refresh');
+    }
+
+    /**
+     * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application|null
+     */
+    /**
+     * @return void
+     */
+    public function showReportForm(): void
+    {
+        if ($this->comment->isReportedByCurrentUser()) {
+            $this->alreadyReported = true;
+            $this->isReporting = true;
+        } else {
+            $this->alreadyReported = false;
+            $this->isReporting = true;
+        }
+        $this->showOptions = false;
     }
 
     /**
@@ -156,6 +185,59 @@ class Comment extends Component
         } else {
             $this->users = [];
         }
+    }
+
+    /**
+     * @return void
+     */
+    public function reportComment(): void
+    {
+        if (!config('commentify.enable_reporting', true)) {
+            return;
+        }
+
+        // Check if user has already reported this comment
+        if ($this->comment->isReportedByCurrentUser()) {
+            session()->flash('message', __('commentify::commentify.comments.already_reported'));
+            session()->flash('alertType', 'warning');
+            $this->isReporting = false;
+            $this->showOptions = false;
+            return;
+        }
+
+        $this->validate([
+            'reportState.reason' => 'required|min:3|max:1000'
+        ]);
+
+        $report = CommentReport::create([
+            'comment_id' => $this->comment->id,
+            'user_id' => auth()->id(),
+            'ip' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'reason' => $this->reportState['reason'],
+            'status' => 'pending',
+        ]);
+
+        if (config('commentify.enable_notifications', false)) {
+            event(new CommentReported($this->comment, $report));
+        }
+
+        $this->reportState = ['reason' => ''];
+        $this->isReporting = false;
+        $this->alreadyReported = false;
+        $this->showOptions = false;
+
+        session()->flash('message', __('commentify::commentify.comments.report_submitted'));
+        session()->flash('alertType', 'success');
+    }
+
+    /**
+     * @return void
+     */
+    public function closeReportForm(): void
+    {
+        $this->isReporting = false;
+        $this->alreadyReported = false;
     }
 
 }
