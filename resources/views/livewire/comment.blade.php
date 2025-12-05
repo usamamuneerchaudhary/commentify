@@ -96,21 +96,51 @@
                 <h3 class="mb-3 text-lg font-semibold text-gray-900 dark:text-white">{{ __('commentify::commentify.comments.report_comment') }}</h3>
                 <form wire:submit.prevent="reportComment">
                     <div class="mb-4">
-                        <label for="report-reason" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                             {{ __('commentify::commentify.comments.report_reason') }}
                         </label>
-                        <textarea
-                            wire:model="reportState.reason"
-                            id="report-reason"
-                            rows="4"
-                            class="block w-full px-3 py-2 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                            placeholder="{{ __('commentify::commentify.comments.report_reason_placeholder') }}"
-                            required
-                        ></textarea>
+                        @php
+                            $reportReasons = config('commentify.report_reasons', ['spam', 'inappropriate', 'offensive', 'other']);
+                        @endphp
+                        <div class="space-y-2">
+                            @foreach($reportReasons as $reason)
+                                <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700">
+                                    <input
+                                        type="radio"
+                                        wire:model="reportState.reason"
+                                        value="{{ $reason }}"
+                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                    />
+                                    <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+                                        {{ __('commentify::commentify.comments.report_reason_' . $reason) }}
+                                    </span>
+                                </label>
+                            @endforeach
+                        </div>
                         @error('reportState.reason')
                             <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                         @enderror
                     </div>
+                    @php
+                        $hasOtherReason = in_array('other', config('commentify.report_reasons', []));
+                    @endphp
+                    @if($hasOtherReason)
+                        <div class="mb-4" x-show="$wire.reportState.reason === 'other'" x-cloak>
+                            <label for="report-additional-details" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                {{ __('commentify::commentify.comments.additional_details') }}
+                            </label>
+                            <textarea
+                                wire:model="reportState.additional_details"
+                                id="report-additional-details"
+                                rows="3"
+                                class="block w-full px-3 py-2 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                placeholder="{{ __('commentify::commentify.comments.additional_details_placeholder') }}"
+                            ></textarea>
+                            @error('reportState.additional_details')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    @endif
                     <div class="flex items-center gap-2">
                         <button
                             type="button"
