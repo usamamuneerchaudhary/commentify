@@ -1,5 +1,29 @@
-<div>
+@php
+    $theme = config('commentify.theme', 'auto');
+    $initialDarkClass = $theme === 'dark' ? 'dark' : '';
+@endphp
 
+<div
+    class="commentify-wrapper {{ $initialDarkClass }}"
+    @if($theme === 'auto')
+        x-data="{
+            init() {
+                // Check system preference on load
+                const checkTheme = () => {
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    this.$el.classList.toggle('dark', prefersDark);
+                };
+
+                // Set initial theme
+                checkTheme();
+
+                // Listen for system theme changes
+                window.matchMedia('(prefers-color-scheme: dark)')
+                    .addEventListener('change', checkTheme);
+            }
+        }"
+    @endif
+>
     <section class="bg-white dark:bg-gray-900 py-8 lg:py-16">
         <div class="max-w-2xl mx-auto px-4">
             <div class="flex justify-between items-center mb-6">
@@ -49,15 +73,17 @@
                     'button'=> __('commentify::commentify.comments.post_comment')
                 ])
             @else
-                <a class="mt-2 text-sm" href="{{ route('login', ['redirect' => request()->url()]) }}">{{ __('commentify::commentify.comments.login_to_comment') }}</a>
+                <a class="mt-2 text-sm text-gray-600 dark:text-gray-400 hover:underline" href="{{ route('login', ['redirect' => request()->url()]) }}">{{ __('commentify::commentify.comments.login_to_comment') }}</a>
             @endauth
             @if($comments->count())
                 @foreach($comments as $comment)
                     <livewire:comment :$comment :key="$comment->id"/>
                 @endforeach
-                {{$comments->links()}}
+                <div class="mt-4">
+                    {{$comments->links()}}
+                </div>
             @else
-                <p>{{ __('commentify::commentify.comments.no_comments') }}</p>
+                <p class="text-gray-600 dark:text-gray-400">{{ __('commentify::commentify.comments.no_comments') }}</p>
             @endif
         </div>
     </section>

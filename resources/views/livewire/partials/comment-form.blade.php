@@ -4,9 +4,9 @@
             @php
                 $alertType = session('alertType', 'success');
                 $alertClasses = [
-                    'success' => 'text-green-800 bg-green-50 dark:text-green-400',
-                    'warning' => 'text-yellow-800 bg-yellow-50 dark:text-yellow-400',
-                    'error'   => 'text-red-800 bg-red-50 dark:text-red-400',
+                    'success' => 'text-green-800 bg-green-50 dark:text-green-300 dark:bg-green-900/20',
+                    'warning' => 'text-yellow-800 bg-yellow-50 dark:text-yellow-300 dark:bg-yellow-900/20',
+                    'error'   => 'text-red-800 bg-red-50 dark:text-red-300 dark:bg-red-900/20',
                 ];
             @endphp
             <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)">
@@ -123,7 +123,7 @@
                 @include('commentify::livewire.partials.dropdowns.users')
             @endif
             @error($state.'.body')
-            <p class="mt-2 text-sm text-red-600">
+            <p class="mt-2 text-sm text-red-600 dark:text-red-400">
                 {{$message}}
             </p>
             @enderror
@@ -144,5 +144,5 @@
 
     </form>
 @else
-    <div class="text-gray-500 italic">{{ __('commentify::commentify.comments.read_only_message') }}</div>
+    <div class="text-gray-500 dark:text-gray-400 italic">{{ __('commentify::commentify.comments.read_only_message') }}</div>
 @endif
