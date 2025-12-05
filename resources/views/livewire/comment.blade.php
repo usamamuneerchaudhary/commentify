@@ -44,6 +44,18 @@
                                         </button>
                                     </li>
                                 @endcan
+                                @if(config('commentify.enable_reporting', true))
+                                    @php
+                                        $isOwnComment = auth()->check() && auth()->id() == $comment->user_id;
+                                    @endphp
+                                    @if(!$isOwnComment)
+                                        <li>
+                                            <button wire:click="showReportForm" type="button" class="block w-full text-left py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white text-red-600 dark:text-red-400">
+                                                {{ __('commentify::commentify.comments.report') }}
+                                            </button>
+                                        </li>
+                                    @endif
+                                @endif
                             </ul>
                         </div>
                     @endif
@@ -66,6 +78,63 @@
            'inputLabel'=> __('commentify::commentify.comments.your_reply'),
            'button'=> __('commentify::commentify.comments.post_reply')
        ])
+    @endif
+    @if($isReporting)
+        <div class="p-4 mb-4 bg-white rounded-lg dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+            @if($alreadyReported)
+                <div class="text-center py-4">
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">{{ __('commentify::commentify.comments.already_reported') }}</p>
+                    <button
+                        type="button"
+                        wire:click="closeReportForm"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+                    >
+                        {{ __('commentify::commentify.comments.close') }}
+                    </button>
+                </div>
+            @else
+                <h3 class="mb-3 text-lg font-semibold text-gray-900 dark:text-white">{{ __('commentify::commentify.comments.report_comment') }}</h3>
+                <form wire:submit.prevent="reportComment">
+                    <div class="mb-4">
+                        <label for="report-reason" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            {{ __('commentify::commentify.comments.report_reason') }}
+                        </label>
+                        <textarea
+                            wire:model="reportState.reason"
+                            id="report-reason"
+                            rows="4"
+                            class="block w-full px-3 py-2 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="{{ __('commentify::commentify.comments.report_reason_placeholder') }}"
+                            required
+                        ></textarea>
+                        @error('reportState.reason')
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button
+                            type="button"
+                            wire:click="$set('isReporting', false)"
+                            wire:loading.attr="disabled"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700 disabled:opacity-50"
+                        >
+                            {{ __('commentify::commentify.comments.cancel') }}
+                        </button>
+                        <flux:button
+                            variant="primary"
+                            wire:loading.attr="disabled"
+                            type="submit">
+                            <span wire:loading wire:target="reportComment" class="mr-2">
+                                @include('commentify::livewire.partials.loader')
+                            </span>
+                            <span wire:loading.remove wire:target="reportComment">
+                                {{ __('commentify::commentify.comments.submit_report') }}
+                            </span>
+                        </flux:button>
+                    </div>
+                </form>
+            @endif
+        </div>
     @endif
     @if($hasReplies)
         <article class="p-1 mb-1 ml-1 lg:ml-12 border-t border-gray-200 dark:border-gray-700 dark:bg-gray-900">
