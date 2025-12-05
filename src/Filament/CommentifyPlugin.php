@@ -4,6 +4,9 @@ namespace Usamamuneerchaudhary\Commentify\Filament;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
+use Usamamuneerchaudhary\Commentify\Filament\Pages\CommentifySettings;
+use Usamamuneerchaudhary\Commentify\Filament\Resources\CommentReportResource;
+use Usamamuneerchaudhary\Commentify\Filament\Resources\CommentResource;
 
 class CommentifyPlugin implements Plugin
 {
@@ -14,7 +17,14 @@ class CommentifyPlugin implements Plugin
 
     public function register(Panel $panel): void
     {
-        //
+        $panel
+            ->resources([
+                CommentResource::class,
+                CommentReportResource::class,
+            ])
+            ->pages([
+                CommentifySettings::class,
+            ]);
     }
 
     public function boot(Panel $panel): void
