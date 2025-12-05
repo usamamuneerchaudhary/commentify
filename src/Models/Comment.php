@@ -58,6 +58,14 @@ class Comment extends Model
     }
 
     /**
+     * @return BelongsTo
+     */
+    public function parent(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Comment::class, 'parent_id');
+    }
+
+    /**
      * @return HasMany
      */
     public function children(): \Illuminate\Database\Eloquent\Relations\HasMany
