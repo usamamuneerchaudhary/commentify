@@ -36,8 +36,7 @@ class CommentsComponentTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function it_shows_comment_component_livewire()
+    public function test_it_shows_comment_component_livewire(): void
     {
         $this->actingAs($this->user);
         Livewire::test(Comments::class, [
@@ -48,8 +47,7 @@ class CommentsComponentTest extends TestCase
             ->assertSee($this->comment->body);
     }
 
-    /** @test */
-    public function it_shows_no_comments_text_if_empty_for_model()
+    public function test_it_shows_no_comments_text_if_empty_for_model(): void
     {
         Livewire::test(Comments::class, [
             'model' => $this->episode
@@ -57,8 +55,7 @@ class CommentsComponentTest extends TestCase
             ->assertSee('No comments yet!');
     }
 
-    /** @test */
-    public function it_doesnt_show_comment_form_if_logged_out()
+    public function test_it_doesnt_show_comment_form_if_logged_out(): void
     {
         Livewire::test(Comments::class, [
             'model' => $this->article
@@ -67,8 +64,7 @@ class CommentsComponentTest extends TestCase
             ->assertSee('Log in to comment!');
     }
 
-    /** @test */
-    public function it_show_comment_form_if_logged_in()
+    public function test_it_show_comment_form_if_logged_in(): void
     {
         $this->actingAs($this->user);
         Livewire::test(Comments::class, [
@@ -87,8 +83,7 @@ class CommentsComponentTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function only_logged_in_user_can_post_a_new_comment()
+    public function test_only_logged_in_user_can_post_a_new_comment(): void
     {
         $this->actingAs($this->user);
         $this->episode->comments()->create([
@@ -115,8 +110,7 @@ class CommentsComponentTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function it_shows_validation_error_on_adding_comment_if_required_fields_empty()
+    public function test_it_shows_validation_error_on_adding_comment_if_required_fields_empty(): void
     {
         $user = User::factory()->create([
             'comment_banned_until' => null,
@@ -129,16 +123,14 @@ class CommentsComponentTest extends TestCase
             ->assertHasErrors(['newCommentState.body' => 'required']);
     }
 
-    /** @test */
-    public function it_can_see_comments_total_count()
+    public function test_it_can_see_comments_total_count(): void
     {
         Livewire::test(Comments::class, ['model' => $this->article])
             ->assertSee($this->article->comments()->count());
     }
 
 
-    /** @test */
-    public function test_pagination_links_if_comments_count()
+    public function test_pagination_links_if_comments_count(): void
     {
         Comment::factory(15)->create([
             'commentable_id' => $this->article->id,
@@ -151,8 +143,7 @@ class CommentsComponentTest extends TestCase
             ->assertSee(2);//second page link
     }
 
-    /** @test */
-    public function test_no_pagination_links_if_comments_count_less_than_10()
+    public function test_no_pagination_links_if_comments_count_less_than_10(): void
     {
         Comment::factory(5)->create([
             'commentable_id' => $this->article->id,
@@ -164,8 +155,7 @@ class CommentsComponentTest extends TestCase
             ->assertDontSeeHtml('<span wire:key="paginator-page-1-page2"></span>');
     }
 
-    /** @test */
-    public function it_renders_livewire_component_correctly()
+    public function test_it_renders_livewire_component_correctly(): void
     {
         $this->actingAs($this->user);
 

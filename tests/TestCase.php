@@ -44,9 +44,18 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
      */
     public function tearDown(): void
     {
-        Schema::drop('articles');
-        Schema::drop('episodes');
-        Schema::drop('comments');
+        // Clean up database tables
+        Schema::dropIfExists('comment_reports');
+        Schema::dropIfExists('comment_likes');
+        Schema::dropIfExists('articles');
+        Schema::dropIfExists('episodes');
+        Schema::dropIfExists('comments');
+
+        // Restore error and exception handlers to prevent risky test warnings
+        restore_error_handler();
+        restore_exception_handler();
+
+        parent::tearDown();
     }
 
     /**

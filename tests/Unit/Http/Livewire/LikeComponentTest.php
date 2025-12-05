@@ -35,16 +35,14 @@ class LikeComponentTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function it_can_like_comment()
+    public function test_it_can_like_comment(): void
     {
         Livewire::test(Like::class, ['comment' => $this->comment, 'count' => 0])
             ->call('like')
             ->assertSee($this->comment->likes_count + 1);
     }
 
-    /** @test */
-    public function it_can_unlike_comment()
+    public function test_it_can_unlike_comment(): void
     {
         $this->comment->likes()->create(['user_id' => 1]);
 
@@ -53,12 +51,19 @@ class LikeComponentTest extends TestCase
             ->assertSee($this->comment->likes_count - 1);
     }
 
-    /** @test */
-    public function auth_users_can_like_comment()
+    public function test_auth_users_can_like_comment(): void
     {
         $this->actingAs($this->user);
-        Livewire::test(Like::class, ['comment' => $this->comment, 'count' => 0])
-            ->call('like')
-            ->assertSee($this->comment->likes_count + 1);
+        $component = Livewire::test(Like::class, ['comment' => $this->comment, 'count' => 0])
+            ->call('like');
+        
+        // Check that count increased
+        $this->assertEquals(1, $component->get('count'));
+        
+        // Verify like was created in database
+        $this->assertDatabaseHas('comment_likes', [
+            'comment_id' => $this->comment->id,
+            'user_id' => $this->user->id,
+        ]);
     }
 }
