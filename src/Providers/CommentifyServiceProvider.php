@@ -36,31 +36,71 @@ class CommentifyServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             // Publish config file
             $this->publishes([
-                __DIR__.'/../../config/commentify.php' => config_path('commentify.php'),
+                __DIR__ . '/../../config/commentify.php' => config_path('commentify.php'),
             ], 'commentify-config');
 
             $this->publishes([
-                __DIR__.'/../../tailwind.config.js' => base_path('tailwind.config.js'),
+                __DIR__ . '/../../tailwind.config.js' => base_path('tailwind.config.js'),
             ], 'commentify-tailwind-config');
 
-            // Add this line to publish your views
+            // Publish Tailwind views
             $this->publishes([
-                __DIR__.'/../../resources/views' => resource_path('views/vendor/commentify'),
-            ], 'commentify-views');
+                __DIR__ . '/../../resources/views/tailwind' => resource_path('views/vendor/commentify'),
+            ], 'commentify-tailwind-views');
+
+            // Publish Bootstrap views
+            $this->publishes([
+                __DIR__ . '/../../resources/views/bootstrap' => resource_path('views/vendor/commentify'),
+            ], 'commentify-bootstrap-views');
+
+            // Publish Filament views
+            $this->publishes([
+                __DIR__ . '/../../resources/views/filament' => resource_path('views/vendor/commentify'),
+            ], 'commentify-filament-views');
 
             // Publish language files
             $this->publishes([
-                __DIR__.'/../../lang' => resource_path('../lang/vendor/commentify'),
+                __DIR__ . '/../../lang' => resource_path('../lang/vendor/commentify'),
             ], 'commentify-lang');
+
         }
-        
-        $migrationPath = realpath(__DIR__.'/../../database/migrations');
+
+        $migrationPath = realpath(__DIR__ . '/../../database/migrations');
         if ($migrationPath && is_dir($migrationPath)) {
             $this->loadMigrationsFrom($migrationPath);
         }
-        
-        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'commentify');
-        $this->loadTranslationsFrom(__DIR__.'/../../lang', 'commentify');
+
+        // Load views based on CSS framework
+        $config = $this->app->make('config');
+        $framework = $config->get('commentify.css_framework', 'tailwind');
+
+        // Validate framework value
+        if (!in_array($framework, ['tailwind', 'bootstrap'])) {
+            $framework = 'tailwind';
+        }
+
+        $frameworkPath = __DIR__ . '/../../resources/views/' . $framework;
+
+        if (is_dir($frameworkPath)) {
+            $this->loadViewsFrom($frameworkPath, 'commentify');
+        } else {
+            // Fallback to tailwind if framework directory doesn't exist
+            $this->loadViewsFrom(__DIR__ . '/../../resources/views/tailwind', 'commentify');
+        }
+
+        $filamentPath = __DIR__ . '/../../resources/views/filament';
+        $filamentPathTailwind = __DIR__ . '/../../resources/views/tailwind/filament';
+        $filamentPathBootstrap = __DIR__ . '/../../resources/views/bootstrap/filament';
+
+        if (is_dir($filamentPath)) {
+            $this->loadViewsFrom($filamentPath, 'commentify');
+        } elseif (is_dir($filamentPathTailwind)) {
+            $this->loadViewsFrom($filamentPathTailwind, 'commentify');
+        } elseif (is_dir($filamentPathBootstrap)) {
+            $this->loadViewsFrom($filamentPathBootstrap, 'commentify');
+        }
+
+        $this->loadTranslationsFrom(__DIR__ . '/../../lang', 'commentify');
         Livewire::component('comments', Comments::class);
         Livewire::component('comment', Comment::class);
         Livewire::component('like', Like::class);

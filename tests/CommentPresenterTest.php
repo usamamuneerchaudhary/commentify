@@ -40,24 +40,20 @@ class CommentPresenterTest extends TestCase
         $this->commentPresenter = new CommentPresenter($this->comment);
     }
 
-    /** @test */
-    public function it_can_convert_comment_body_to_markdown_html()
+    public function test_it_can_convert_comment_body_to_markdown_html(): void
     {
         $expectedOutput = 'This is a test comment';
         $this->assertEquals(new HtmlString(app('markdown')->convertToHtml($expectedOutput)),
             $this->commentPresenter->markdownBody());
     }
 
-    /** @test */
-    public function it_can_get_relative_created_at_time()
+    public function test_it_can_get_relative_created_at_time(): void
     {
         $expectedOutput = '1 hour ago';
         $this->assertEquals($expectedOutput, $this->commentPresenter->relativeCreatedAt());
     }
 
-
-    /** @test */
-    public function it_can_replace_user_mentions_in_text_with_links()
+    public function test_it_can_replace_user_mentions_in_text_with_links(): void
     {
         $expectedOutput = 'Hello <a href="/users/usama">@usama</a>, this is a test comment mentioning!';
         $this->assertEquals($expectedOutput, $this->commentPresenter->replaceUserMentions($expectedOutput));

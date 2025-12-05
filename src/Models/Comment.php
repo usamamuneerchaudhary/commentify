@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Usamamuneerchaudhary\Commentify\Models\CommentReport;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Usamamuneerchaudhary\Commentify\Database\Factories\CommentFactory;
 use Usamamuneerchaudhary\Commentify\Models\Presenters\CommentPresenter;
@@ -57,6 +58,14 @@ class Comment extends Model
     }
 
     /**
+     * @return BelongsTo
+     */
+    public function parent(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Comment::class, 'parent_id');
+    }
+
+    /**
      * @return HasMany
      */
     public function children(): \Illuminate\Database\Eloquent\Relations\HasMany
@@ -70,6 +79,40 @@ class Comment extends Model
     public function commentable(): \Illuminate\Database\Eloquent\Relations\MorphTo
     {
         return $this->morphTo();
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function reports(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CommentReport::class);
+    }
+
+    /**
+     * Check if the current user/IP has already reported this comment
+     *
+     * @return bool
+     */
+    public function isReportedByCurrentUser(): bool
+    {
+        $query = $this->reports();
+
+        if (auth()->check()) {
+            return $query->where('user_id', auth()->id())->exists();
+        }
+
+        $ip = request()->ip();
+        $userAgent = request()->userAgent();
+
+        if ($ip && $userAgent) {
+            return $query->whereNull('user_id')
+                ->where('ip', $ip)
+                ->where('user_agent', $userAgent)
+                ->exists();
+        }
+
+        return false;
     }
 
     /**

@@ -23,11 +23,22 @@ trait HasLikes
     {
         $ip = request()->ip();
         $userAgent = request()->userAgent();
+
         if (auth()->user()) {
+            if ($this->relationLoaded('likes')) {
+                return $this->likes->contains('user_id', auth()->user()->id);
+            }
+
             return $this->likes()->where('user_id', auth()->user()->id)->exists();
         }
 
         if ($ip && $userAgent) {
+            if ($this->relationLoaded('likes')) {
+                return $this->likes->filter(function ($like) use ($ip, $userAgent) {
+                    return $like->ip === $ip && $like->user_agent === $userAgent;
+                })->isNotEmpty();
+            }
+
             return $this->likes()->forIp($ip)->forUserAgent($userAgent)->exists();
         }
 

@@ -33,6 +33,9 @@
         "laravel/framework": "^12.0",
         "guzzlehttp/guzzle": "^7.9"
     },
+    "suggest": {
+        "filament/filament": "^4.0 - Required for Filament admin panel integration"
+    },
     "require-dev": {
         "orchestra/testbench": "^10.0",
         "phpunit/phpunit": "^11.0"

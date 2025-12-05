@@ -30,8 +30,7 @@ class CommentTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function comment_can_be_persisted_in_database()
+    public function test_comment_can_be_persisted_in_database(): void
     {
         $user = User::factory()->create();
         $comment = Comment::factory()->create([
@@ -44,8 +43,7 @@ class CommentTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function comment_has_user_relation()
+    public function test_comment_has_user_relation(): void
     {
         $user = User::factory()->create();
         $comment = Comment::factory()->create([
@@ -55,8 +53,7 @@ class CommentTest extends TestCase
         $this->assertInstanceOf(User::class, $comment->user);
     }
 
-    /** @test */
-    public function comment_has_children_relation()
+    public function test_comment_has_children_relation(): void
     {
         $comment = Comment::factory()->create([
             'parent_id' => null
@@ -69,8 +66,7 @@ class CommentTest extends TestCase
         $this->assertCount(2, $comment->children);
     }
 
-    /** @test */
-    public function comment_has_commentable_relation()
+    public function test_comment_has_commentable_relation(): void
     {
         $this->assertEquals('ArticleStub', $this->comment->commentable_type);
         $this->assertEquals(1, $this->comment->commentable_id);

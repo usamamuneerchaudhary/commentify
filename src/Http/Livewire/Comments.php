@@ -11,6 +11,7 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Database\Eloquent\Model;
+use Usamamuneerchaudhary\Commentify\Events\CommentPosted;
 
 class Comments extends Component
 {
@@ -21,6 +22,8 @@ class Comments extends Component
     public $users = [];
 
     public $showDropdown = false;
+
+    public $sort = 'newest';
 
     protected $numberOfPaginatorsRendered = [];
 
@@ -39,6 +42,12 @@ class Comments extends Component
     public function mount(Model $model)
     {
         $this->model = $model;
+        $this->sort = config('commentify.default_sort', 'newest');
+    }
+
+    public function updatedSort(): void
+    {
+        $this->resetPage();
     }
 
     /**
@@ -46,12 +55,25 @@ class Comments extends Component
      */
     public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\View|\Illuminate\Contracts\Foundation\Application|null
     {
-        $comments = $this->model
+        $query = $this->model
             ->comments()
-            ->with('user', 'children.user', 'children.children')
+            ->with('user', 'likes', 'children.user', 'children.likes', 'children.children')
             ->parent()
-            ->latest()
-            ->paginate(config('commentify.pagination_count', 10));
+            ->withCount('children');
+
+        if (config('commentify.enable_sorting', true)) {
+            $query = match ($this->sort) {
+                'oldest' => $query->oldest(),
+                'most_liked' => $query->mostLiked(),
+                'most_replied' => $query->mostReplied(),
+                default => $query->newest(),
+            };
+        } else {
+            $query = $query->newest();
+        }
+
+        $comments = $query->paginate(config('commentify.pagination_count', 10));
+
         return view('commentify::livewire.comments', [
             'comments' => $comments
         ]);
@@ -79,6 +101,10 @@ class Comments extends Component
         $comment = $this->model->comments()->make($this->newCommentState);
         $comment->user()->associate(auth()->user());
         $comment->save();
+
+        if (config('commentify.enable_notifications', false)) {
+            event(new CommentPosted($comment));
+        }
 
         $this->newCommentState = [
             'body' => ''
