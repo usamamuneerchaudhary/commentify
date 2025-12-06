@@ -19,10 +19,9 @@ class CommentifyPlugin implements Plugin
     {
         // Check if Filament is installed
         if (!class_exists(\Filament\Filament::class)) {
-            throw new \RuntimeException(
-                'Filament is not installed. Please install it first: composer require filament/filament'
-            );
+            return;
         }
+
         $panel
             ->resources([
                 CommentResource::class,

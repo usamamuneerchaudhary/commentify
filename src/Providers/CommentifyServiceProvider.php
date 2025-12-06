@@ -53,10 +53,12 @@ class CommentifyServiceProvider extends ServiceProvider
                 __DIR__ . '/../../resources/views/bootstrap' => resource_path('views/vendor/commentify'),
             ], 'commentify-bootstrap-views');
 
-            // Publish Filament views
-            $this->publishes([
-                __DIR__ . '/../../resources/views/filament' => resource_path('views/vendor/commentify'),
-            ], 'commentify-filament-views');
+            // Only register Filament views for publishing if Filament is installed
+            if (class_exists(\Filament\Filament::class)) {
+                $this->publishes([
+                    __DIR__ . '/../../resources/views/filament' => resource_path('views/vendor/commentify'),
+                ], 'commentify-filament-views');
+            }
 
             // Publish language files
             $this->publishes([
@@ -88,16 +90,19 @@ class CommentifyServiceProvider extends ServiceProvider
             $this->loadViewsFrom(__DIR__ . '/../../resources/views/tailwind', 'commentify');
         }
 
-        $filamentPath = __DIR__ . '/../../resources/views/filament';
-        $filamentPathTailwind = __DIR__ . '/../../resources/views/tailwind/filament';
-        $filamentPathBootstrap = __DIR__ . '/../../resources/views/bootstrap/filament';
+        // Only load Filament views if Filament is installed
+        if (class_exists(\Filament\Filament::class)) {
+            $filamentPath = __DIR__ . '/../../resources/views/filament';
+            $filamentPathTailwind = __DIR__ . '/../../resources/views/tailwind/filament';
+            $filamentPathBootstrap = __DIR__ . '/../../resources/views/bootstrap/filament';
 
-        if (is_dir($filamentPath)) {
-            $this->loadViewsFrom($filamentPath, 'commentify');
-        } elseif (is_dir($filamentPathTailwind)) {
-            $this->loadViewsFrom($filamentPathTailwind, 'commentify');
-        } elseif (is_dir($filamentPathBootstrap)) {
-            $this->loadViewsFrom($filamentPathBootstrap, 'commentify');
+            if (is_dir($filamentPath)) {
+                $this->loadViewsFrom($filamentPath, 'commentify');
+            } elseif (is_dir($filamentPathTailwind)) {
+                $this->loadViewsFrom($filamentPathTailwind, 'commentify');
+            } elseif (is_dir($filamentPathBootstrap)) {
+                $this->loadViewsFrom($filamentPathBootstrap, 'commentify');
+            }
         }
 
         $this->loadTranslationsFrom(__DIR__ . '/../../lang', 'commentify');
