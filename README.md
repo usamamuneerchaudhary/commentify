@@ -34,6 +34,7 @@ powerful tool for enhancing user engagement and collaboration.
 - ✅ Nested Comments
 - ✅ **Comment Sorting**: Sort by newest, oldest, most liked, or most replied
 - ✅ **Comment Reporting**: Users can report inappropriate comments with predefined reasons
+- ✅ **Comment Moderation**: Require manual approval for comments before they appear on the frontend
 - ✅ **Emoji Picker**: Rich emoji support for comments
 - ✅ **Notifications**: Real-time notifications for comment events (database, email, broadcast)
 - ✅ Temporary user comment bans (block users from commenting until a set date)
@@ -183,6 +184,7 @@ return [
         'offensive',
         'other'
     ],
+    'require_approval' => false,            // Require manual approval for comments before they appear
     'theme' => 'auto',                      // Theme mode: 'light', 'dark', 'auto'
     'enable_emoji_picker' => true,          // Enable/disable emoji picker
     'enable_notifications' => false,        // Enable/disable notifications
@@ -255,6 +257,43 @@ Users can report inappropriate comments with predefined reasons. Configure repor
 When "other" is selected, users can provide additional details. Reports are stored in the `comment_reports` table and can be managed through the Filament admin panel.
 
 **Note**: Each user can only report a comment once to prevent abuse.
+
+---
+
+## ✅ Comment Moderation & Approval
+
+Commentify includes a built-in moderation system that allows you to require manual approval for comments before they appear on the frontend.
+
+### Enable Comment Approval
+
+Configure comment approval in `config/commentify.php`:
+
+```php
+'require_approval' => true,    // Require manual approval for comments
+```
+
+When enabled:
+- New comments are created as **unapproved** (`is_approved = false`)
+- Unapproved comments are **hidden** from the frontend
+- Comments only appear after being **approved** by an administrator
+
+When disabled (default):
+- All comments are **auto-approved** (`is_approved = true`)
+- Comments appear immediately after posting
+- Backward compatible with existing installations
+
+### Approving Comments via Filament
+
+When comment approval is enabled, administrators can approve or disapprove comments through the Filament admin panel:
+
+1. Navigate to **Comments** in the Filament admin panel
+2. Use the **Approve** or **Disapprove** actions on individual comments
+3. Use **bulk actions** to approve/disapprove multiple comments at once
+4. Filter comments by approval status (Approved/Pending/All)
+
+### Managing Approval via Settings
+
+You can also toggle comment approval on/off from the **Commentify Settings** page in Filament, without editing the config file manually.
 
 ---
 
@@ -376,25 +415,22 @@ composer require filament/filament:"^4.0"
 php artisan filament:install --panels
 ```
 
-2. Register Commentify resources in your Filament panel configuration (e.g., `app/Providers/Filament/AdminPanelProvider.php`):
+2. Register the Commentify plugin in your Filament panel configuration (e.g., `app/Providers/Filament/AdminPanelProvider.php`):
 
 ```php
-use Usamamuneerchaudhary\Commentify\Filament\Resources\CommentReportResource;
-use Usamamuneerchaudhary\Commentify\Filament\Resources\CommentResource;
-use Usamamuneerchaudhary\Commentify\Filament\Pages\CommentifySettings;
+use Usamamuneerchaudhary\Commentify\Filament\CommentifyPlugin;
 
 public function panel(Panel $panel): Panel
 {
     return $panel
-        ->resources([
-            CommentResource::class,
-            CommentReportResource::class,
-        ])
-        ->pages([
-            CommentifySettings::class,
-        ]);
+        ->plugin(CommentifyPlugin::make());
 }
 ```
+
+This will automatically register:
+- **CommentResource** - Manage all comments
+- **CommentReportResource** - Manage reported comments
+- **CommentifySettings** - Configure Commentify settings
 
 ### Features
 
@@ -402,7 +438,9 @@ public function panel(Panel $panel): Panel
   - View all comments with likes count, replies count, and user information
   - View and manage nested replies
   - Edit and delete comments
-  - Filter by user, parent/child status
+  - **Approve/Disapprove comments** (when moderation is enabled)
+  - **Bulk approve/disapprove** multiple comments
+  - Filter by user, parent/child status, and approval status
   - Search functionality
   
 - **Comment Reports Management**: 
