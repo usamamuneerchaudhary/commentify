@@ -3,6 +3,7 @@
 namespace Usamamuneerchaudhary\Commentify\Filament;
 
 use Filament\Contracts\Plugin;
+use Filament\Facades\Filament;
 use Filament\Panel;
 use Usamamuneerchaudhary\Commentify\Filament\Pages\CommentifySettings;
 use Usamamuneerchaudhary\Commentify\Filament\Resources\CommentReportResource;
@@ -18,7 +19,7 @@ class CommentifyPlugin implements Plugin
     public function register(Panel $panel): void
     {
         // Check if Filament is installed
-        if (!class_exists(\Filament\Filament::class)) {
+        if (!class_exists(Filament::class)) {
             return;
         }
 

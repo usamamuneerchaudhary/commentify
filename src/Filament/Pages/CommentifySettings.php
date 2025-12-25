@@ -5,7 +5,6 @@ namespace Usamamuneerchaudhary\Commentify\Filament\Pages;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
@@ -16,7 +15,6 @@ class CommentifySettings extends Page implements HasForms
     use InteractsWithForms;
 
     protected static string|null|\BackedEnum $navigationIcon = 'heroicon-o-cog-6-tooth';
-
 
     protected static string|null|\UnitEnum $navigationGroup = 'Commentify';
 
@@ -84,6 +82,10 @@ class CommentifySettings extends Page implements HasForms
                     ]),
                 Section::make('Moderation')
                     ->schema([
+                        Forms\Components\Toggle::make('require_approval')
+                            ->label('Require Comment Approval')
+                            ->helperText('When enabled, new comments will require manual approval before appearing on the frontend')
+                            ->default(false),
                         Forms\Components\Toggle::make('enable_reporting')
                             ->label('Enable Comment Reporting')
                             ->default(true),
@@ -144,7 +146,7 @@ class CommentifySettings extends Page implements HasForms
 
             file_put_contents(
                 $configPath,
-                "<?php\n\nreturn " . var_export($config, true) . ";\n"
+                "<?php\n\nreturn ".var_export($config, true).";\n"
             );
 
             // Clear config cache
@@ -159,4 +161,3 @@ class CommentifySettings extends Page implements HasForms
             ->send();
     }
 }
-

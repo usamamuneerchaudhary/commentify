@@ -2,6 +2,8 @@
 
 namespace Usamamuneerchaudhary\Commentify\Filament\Resources;
 
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -11,7 +13,6 @@ use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
@@ -56,12 +57,16 @@ class CommentResource extends Resource
                         if ($record->commentable_type) {
                             return [$record->commentable_type => class_basename($record->commentable_type)];
                         }
+
                         return [];
                     })
                     ->disabled(),
                 Forms\Components\TextInput::make('commentable_id')
                     ->label('Commentable ID')
                     ->disabled(),
+                Forms\Components\Toggle::make('is_approved')
+                    ->label('Approved')
+                    ->default(false),
             ]);
     }
 
@@ -126,6 +131,11 @@ class CommentResource extends Resource
                     ->color(fn ($state) => ($state ?? 0) > 0 ? 'danger' : 'gray')
                     ->default(0)
                     ->toggleable(),
+                Tables\Columns\IconColumn::make('is_approved')
+                    ->label('Approved')
+                    ->boolean()
+                    ->sortable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -151,16 +161,63 @@ class CommentResource extends Resource
                         true: fn ($query) => $query->whereNull('parent_id'),
                         false: fn ($query) => $query->whereNotNull('parent_id'),
                     ),
+                Tables\Filters\TernaryFilter::make('is_approved')
+                    ->label('Approval Status')
+                    ->placeholder('All Comments')
+                    ->queries(
+                        true: fn ($query) => $query->where('is_approved', true),
+                        false: fn ($query) => $query->where('is_approved', false),
+                    ),
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                Action::make('approve')
+                    ->label('Approve')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->visible(fn (Comment $record) => ! $record->is_approved)
+                    ->action(function (Comment $record) {
+                        $record->update(['is_approved' => true]);
+                    }),
+                Action::make('disapprove')
+                    ->label('Disapprove')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->visible(fn (Comment $record) => $record->is_approved)
+                    ->action(function (Comment $record) {
+                        $record->update(['is_approved' => false]);
+                    }),
                 DeleteAction::make(),
                 RestoreAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('approve')
+                        ->label('Approve Selected')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function ($records) {
+                            $records->each(function (Comment $record) {
+                                $record->update(['is_approved' => true]);
+                            });
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                    BulkAction::make('disapprove')
+                        ->label('Disapprove Selected')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->action(function ($records) {
+                            $records->each(function (Comment $record) {
+                                $record->update(['is_approved' => false]);
+                            });
+                        })
+                        ->deselectRecordsAfterCompletion(),
                     DeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                     ForceDeleteBulkAction::make(),
@@ -187,4 +244,3 @@ class CommentResource extends Resource
         ];
     }
 }
-
