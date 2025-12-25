@@ -2,20 +2,16 @@
 
 namespace Usamamuneerchaudhary\Commentify\Http\Livewire;
 
-use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Foundation\Application;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Database\Eloquent\Model;
 use Usamamuneerchaudhary\Commentify\Events\CommentPosted;
 
 class Comments extends Component
 {
-    use WithPagination, AuthorizesRequests;
+    use AuthorizesRequests, WithPagination;
 
     public Model $model;
 
@@ -28,15 +24,15 @@ class Comments extends Component
     protected $numberOfPaginatorsRendered = [];
 
     public $newCommentState = [
-        'body' => ''
+        'body' => '',
     ];
 
     protected $listeners = [
-        'refresh' => '$refresh'
+        'refresh' => '$refresh',
     ];
 
     protected $validationAttributes = [
-        'newCommentState.body' => 'comment'
+        'newCommentState.body' => 'comment',
     ];
 
     public function mount(Model $model)
@@ -50,16 +46,38 @@ class Comments extends Component
         $this->resetPage();
     }
 
-    /**
-     * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application|null
-     */
     public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\View|\Illuminate\Contracts\Foundation\Application|null
     {
+        $requireApproval = config('commentify.require_approval', false);
+
         $query = $this->model
             ->comments()
-            ->with('user', 'likes', 'children.user', 'children.likes', 'children.children')
+            ->with([
+                'user',
+                'likes',
+                'children' => function ($query) use ($requireApproval) {
+                    $query->with([
+                        'user',
+                        'likes',
+                        'children' => function ($nestedQuery) use ($requireApproval) {
+                            $nestedQuery->with('user', 'likes');
+                            if ($requireApproval) {
+                                $nestedQuery->approved();
+                            }
+                        },
+                    ]);
+                    if ($requireApproval) {
+                        $query->approved();
+                    }
+                },
+            ])
             ->parent()
             ->withCount('children');
+
+        // Filter by approval status if moderation is enabled
+        if ($requireApproval) {
+            $query->approved();
+        }
 
         if (config('commentify.enable_sorting', true)) {
             $query = match ($this->sort) {
@@ -75,19 +93,17 @@ class Comments extends Component
         $comments = $query->paginate(config('commentify.pagination_count', 10));
 
         return view('commentify::livewire.comments', [
-            'comments' => $comments
+            'comments' => $comments,
         ]);
     }
 
-    /**
-     * @return void
-     */
     #[On('refresh')]
     public function postComment(): void
     {
         if (config('commentify.read_only')) {
             session()->flash('message', __('commentify::commentify.comments.read_only_message'));
             session()->flash('alertType', 'warning');
+
             return;
         }
 
@@ -95,11 +111,15 @@ class Comments extends Component
         $this->authorize('create', \Usamamuneerchaudhary\Commentify\Models\Comment::class);
 
         $this->validate([
-            'newCommentState.body' => 'required'
+            'newCommentState.body' => 'required',
         ]);
 
         $comment = $this->model->comments()->make($this->newCommentState);
         $comment->user()->associate(auth()->user());
+
+        // Set approval status based on config
+        $comment->is_approved = ! config('commentify.require_approval', false);
+
         $comment->save();
 
         if (config('commentify.enable_notifications', false)) {
@@ -107,7 +127,7 @@ class Comments extends Component
         }
 
         $this->newCommentState = [
-            'body' => ''
+            'body' => '',
         ];
         $this->users = [];
         $this->showDropdown = false;

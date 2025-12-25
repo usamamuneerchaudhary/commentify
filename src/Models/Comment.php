@@ -4,10 +4,6 @@ namespace Usamamuneerchaudhary\Commentify\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Usamamuneerchaudhary\Commentify\Models\CommentReport;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Usamamuneerchaudhary\Commentify\Database\Factories\CommentFactory;
 use Usamamuneerchaudhary\Commentify\Models\Presenters\CommentPresenter;
@@ -16,8 +12,7 @@ use Usamamuneerchaudhary\Commentify\Scopes\HasLikes;
 
 class Comment extends Model
 {
-
-    use CommentScopes, SoftDeletes, HasFactory, HasLikes;
+    use CommentScopes, HasFactory, HasLikes, SoftDeletes;
 
     /**
      * @var string
@@ -27,63 +22,49 @@ class Comment extends Model
     /**
      * @var string[]
      */
-    protected $fillable = ['body'];
+    protected $fillable = ['body', 'is_approved'];
+
+    /**
+     * @var string[]
+     */
+    protected $casts = [
+        'is_approved' => 'boolean',
+    ];
 
     protected $withCount = [
         'likes',
     ];
 
-    /**
-     * @return CommentPresenter
-     */
     public function presenter(): CommentPresenter
     {
         return new CommentPresenter($this);
     }
 
-    /**
-     * @return bool
-     */
     public function isParent(): bool
     {
         return is_null($this->parent_id);
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function parent(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Comment::class, 'parent_id');
     }
 
-    /**
-     * @return HasMany
-     */
     public function children(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Comment::class, 'parent_id')->oldest();
     }
 
-    /**
-     * @return MorphTo
-     */
     public function commentable(): \Illuminate\Database\Eloquent\Relations\MorphTo
     {
         return $this->morphTo();
     }
 
-    /**
-     * @return HasMany
-     */
     public function reports(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CommentReport::class);
@@ -91,8 +72,6 @@ class Comment extends Model
 
     /**
      * Check if the current user/IP has already reported this comment
-     *
-     * @return bool
      */
     public function isReportedByCurrentUser(): bool
     {
@@ -116,8 +95,21 @@ class Comment extends Model
     }
 
     /**
-     * @return CommentFactory
+     * Check if the comment is approved
      */
+    public function isApproved(): bool
+    {
+        return $this->is_approved === true;
+    }
+
+    /**
+     * Check if the comment is pending approval
+     */
+    public function isPending(): bool
+    {
+        return $this->is_approved === false;
+    }
+
     protected static function newFactory(): CommentFactory
     {
         return CommentFactory::new();
