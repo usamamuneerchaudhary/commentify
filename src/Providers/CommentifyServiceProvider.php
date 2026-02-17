@@ -57,6 +57,10 @@ class CommentifyServiceProvider extends ServiceProvider
                 __DIR__.'/../../lang' => resource_path('../lang/vendor/commentify'),
             ], 'commentify-lang');
 
+            // Publish migrations (optional - for users who want to customize them)
+            $this->publishes([
+                __DIR__.'/../../database/migrations' => database_path('migrations'),
+            ], 'commentify-migrations');
         }
 
         $migrationPath = realpath(__DIR__.'/../../database/migrations');
