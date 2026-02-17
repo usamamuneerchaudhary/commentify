@@ -4,10 +4,12 @@ namespace Usamamuneerchaudhary\Commentify\Http\Livewire;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Usamamuneerchaudhary\Commentify\Events\CommentPosted;
+use Usamamuneerchaudhary\Commentify\Models\User;
 
 class Comments extends Component
 {
@@ -134,5 +136,26 @@ class Comments extends Component
 
         $this->resetPage();
         session()->flash('message', 'Comment Posted Successfully!');
+    }
+
+    public function getUsers(string $searchTerm): void
+    {
+        if (! empty($searchTerm)) {
+            $this->users = User::where('name', 'like', '%'.$searchTerm.'%')->take(5)->get();
+        } else {
+            $this->users = [];
+        }
+    }
+
+    public function selectUser(string $userName): void
+    {
+        if ($this->newCommentState['body']) {
+            $this->newCommentState['body'] = preg_replace(
+                '/@(\w+)$/',
+                '@'.str_replace(' ', '_', Str::lower($userName)).' ',
+                $this->newCommentState['body']
+            );
+            $this->users = [];
+        }
     }
 }

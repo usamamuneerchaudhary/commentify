@@ -1,15 +1,16 @@
 <?php
 
 use Livewire\Livewire;
-use Usamamuneerchaudhary\Commentify\Models\Comment;
 use Usamamuneerchaudhary\Commentify\Http\Livewire\Comments;
+use Usamamuneerchaudhary\Commentify\Models\Comment;
 use Usamamuneerchaudhary\Commentify\Models\User;
 
 class CommentsComponentTest extends TestCase
 {
-
     public $article;
+
     public $episode;
+
     public $comment;
 
     public function setUp(): void
@@ -17,10 +18,10 @@ class CommentsComponentTest extends TestCase
         parent::setUp();
 
         $this->article = \ArticleStub::create([
-            'slug' => \Illuminate\Support\Str::slug('Article One')
+            'slug' => \Illuminate\Support\Str::slug('Article One'),
         ]);
         $this->episode = \EpisodeStub::create([
-            'slug' => \Illuminate\Support\Str::slug('Episode One')
+            'slug' => \Illuminate\Support\Str::slug('Episode One'),
         ]);
         $this->user = User::factory()->create([
             'comment_banned_until' => null, // Not banned
@@ -32,7 +33,7 @@ class CommentsComponentTest extends TestCase
             'commentable_id' => $this->article->id,
             'user_id' => $this->user->id,
             'parent_id' => null,
-            'created_at' => now()
+            'created_at' => now(),
         ]);
     }
 
@@ -40,7 +41,7 @@ class CommentsComponentTest extends TestCase
     {
         $this->actingAs($this->user);
         Livewire::test(Comments::class, [
-            'model' => $this->article
+            'model' => $this->article,
         ])
             ->set('newCommentState.body', $this->comment->body)
             ->call('postComment')
@@ -50,7 +51,7 @@ class CommentsComponentTest extends TestCase
     public function test_it_shows_no_comments_text_if_empty_for_model(): void
     {
         Livewire::test(Comments::class, [
-            'model' => $this->episode
+            'model' => $this->episode,
         ])
             ->assertSee('No comments yet!');
     }
@@ -58,7 +59,7 @@ class CommentsComponentTest extends TestCase
     public function test_it_doesnt_show_comment_form_if_logged_out(): void
     {
         Livewire::test(Comments::class, [
-            'model' => $this->article
+            'model' => $this->article,
         ])
             ->assertSee($this->comment->body)
             ->assertSee('Log in to comment!');
@@ -68,7 +69,7 @@ class CommentsComponentTest extends TestCase
     {
         $this->actingAs($this->user);
         Livewire::test(Comments::class, [
-            'model' => $this->article
+            'model' => $this->article,
         ])
             ->set('newCommentState.body', $this->comment->body)
             ->call('postComment')
@@ -79,7 +80,7 @@ class CommentsComponentTest extends TestCase
         $this->assertDatabaseHas('comments', [
             'body' => $this->comment->body,
             'user_id' => $this->user->id,
-            'commentable_id' => $this->article->id
+            'commentable_id' => $this->article->id,
         ]);
     }
 
@@ -92,11 +93,11 @@ class CommentsComponentTest extends TestCase
             'commentable_id' => $this->episode->id,
             'user_id' => $this->user->id,
             'parent_id' => null,
-            'created_at' => now()
+            'created_at' => now(),
         ]);
 
         Livewire::test(Comments::class, [
-            'model' => $this->episode
+            'model' => $this->episode,
         ])
             ->set('newCommentState.body', $this->episode->comments()->first()->body)
             ->call('postComment')
@@ -106,7 +107,7 @@ class CommentsComponentTest extends TestCase
         $this->assertDatabaseHas('comments', [
             'body' => $this->episode->comments()->first()->body,
             'user_id' => $this->user->id,
-            'commentable_id' => $this->episode->id
+            'commentable_id' => $this->episode->id,
         ]);
     }
 
@@ -129,25 +130,24 @@ class CommentsComponentTest extends TestCase
             ->assertSee($this->article->comments()->count());
     }
 
-
     public function test_pagination_links_if_comments_count(): void
     {
         Comment::factory(15)->create([
             'commentable_id' => $this->article->id,
-            'commentable_type' => 'ArticleStub'
+            'commentable_type' => 'ArticleStub',
         ]);
 
         Livewire::test(Comments::class, ['model' => $this->article])
             ->assertSee(10)
             ->assertSeeHtml('<span wire:key="paginator-page-page1">')
-            ->assertSee(2);//second page link
+            ->assertSee(2); // second page link
     }
 
     public function test_no_pagination_links_if_comments_count_less_than_10(): void
     {
         Comment::factory(5)->create([
             'commentable_id' => $this->article->id,
-            'commentable_type' => 'ArticleStub'
+            'commentable_type' => 'ArticleStub',
         ]);
 
         Livewire::test(Comments::class, ['model' => $this->article])
@@ -164,4 +164,28 @@ class CommentsComponentTest extends TestCase
             ->assertViewHas('comments');
     }
 
+    public function test_it_can_search_users_in_main_form(): void
+    {
+        $searchUser = User::factory()->create(['name' => 'TestSearchUser']);
+        $this->actingAs($searchUser);
+
+        Livewire::test(Comments::class, ['model' => $this->article])
+            ->call('getUsers', 'TestSearch')
+            ->assertSet('users', function ($users) use ($searchUser) {
+                return $users->count() >= 1 && $users->contains('name', $searchUser->name);
+            });
+    }
+
+    public function test_it_can_select_user_in_main_form(): void
+    {
+        $this->actingAs($this->user);
+
+        $otherUser = User::factory()->create(['name' => 'Jane Doe']);
+
+        Livewire::test(Comments::class, ['model' => $this->article])
+            ->set('newCommentState.body', 'Hello @jan')
+            ->call('selectUser', $otherUser->name)
+            ->assertSet('newCommentState.body', 'Hello @jane_doe ')
+            ->assertSet('users', []);
+    }
 }
