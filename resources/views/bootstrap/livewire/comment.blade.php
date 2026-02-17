@@ -122,7 +122,7 @@
                                 <label for="report-additional-details" class="form-label">
                                     {{ __('commentify::commentify.comments.additional_details') }}
                                 </label>
-                                <textarea wire:model="reportState.additional_details" id="report-additional-details" rows="3" class="form-control" placeholder="{{ __('commentify::commentify.comments.additional_details_placeholder') }}"></textarea>
+                                <textarea wire:model.blur="reportState.additional_details" id="report-additional-details" rows="3" class="form-control" placeholder="{{ __('commentify::commentify.comments.additional_details_placeholder') }}"></textarea>
                                 @error('reportState.additional_details')
                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror

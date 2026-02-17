@@ -25,7 +25,7 @@ powerful tool for enhancing user engagement and collaboration.
 
 - ✅ Easy to integrate
 - ✅ Laravel 12+ support
-- ✅ Livewire 3 support
+- ✅ Livewire 4 support
 - ✅ Livewire powered commenting system
 - ✅ **CSS Framework Support**: Tailwind CSS and Bootstrap 5
 - ✅ **Dark/Light/Auto Theme**: Automatic theme detection with manual override options
@@ -52,8 +52,8 @@ powerful tool for enhancing user engagement and collaboration.
 
 - PHP 8.2 or higher
 - Laravel 12 or higher
-- [Livewire 3](https://livewire.laravel.com/docs/installation)
-- [AlpineJS](https://alpinejs.dev/essentials/installation) (included with Livewire 3)
+- [Livewire 4](https://livewire.laravel.com/docs/installation)
+- [AlpineJS](https://alpinejs.dev/essentials/installation) (included with Livewire 4)
 - **CSS Framework** (choose one):
   - [Tailwind CSS v4](https://tailwindcss.com/) (default)
   - [Bootstrap 5](https://getbootstrap.com/)
