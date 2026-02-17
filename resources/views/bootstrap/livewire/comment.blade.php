@@ -23,28 +23,33 @@
                         </div>
                     </div>
                     <div class="dropdown position-relative" x-data="{ open: false }">
-                        <button wire:click="$toggle('showOptions')" @click="open = !open" class="btn btn-sm btn-link text-muted p-1" type="button" :class="{ 'show': open }" :aria-expanded="open">
+                        <button @click="open = !open"
+                                class="btn btn-sm btn-link text-muted p-1"
+                                type="button"
+                                :class="{ 'show': open }"
+                                :aria-expanded="open">
                             <svg class="bi" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                                 <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
                             </svg>
                         </button>
-                        @if($showOptions)
-                            <ul class="dropdown-menu dropdown-menu-end shadow" 
-                                x-show="open" 
-                                @click.away="open = false" 
-                                x-cloak 
-                                :class="{ 'show': open }"
-                                style="display: none;">
+                        <ul class="dropdown-menu dropdown-menu-end shadow"
+                            x-show="open"
+                            @click.away="open = false"
+                            x-cloak
+                            :class="{ 'show': open }"
+                            style="display: none;">
                                 @can('update',$comment)
                                     <li>
-                                        <button wire:click="$toggle('isEditing'); open = false;" type="button" class="dropdown-item">
+                                        <button wire:click="$toggle('isEditing')" type="button" class="dropdown-item">
                                             {{ __('commentify::commentify.comments.edit') }}
                                         </button>
                                     </li>
                                 @endcan
                                 @can('destroy',$comment)
                                     <li>
-                                        <button x-on:click="confirmCommentDeletion" x-data="{ confirmCommentDeletion(){ if(window.confirm('{{ __('commentify::commentify.comments.delete_confirm') }}')){ @this.call('deleteComment'); open = false; } } }" class="dropdown-item text-danger">
+                                        <button x-on:click="confirmCommentDeletion"
+                                                x-data="{ confirmCommentDeletion(){ if(window.confirm('{{ __('commentify::commentify.comments.delete_confirm') }}')){ @this.call('deleteComment') } } }"
+                                                class="dropdown-item text-danger">
                                             {{ __('commentify::commentify.comments.delete') }}
                                         </button>
                                     </li>
@@ -55,14 +60,13 @@
                                     @endphp
                                     @if(!$isOwnComment)
                                         <li>
-                                            <button wire:click="showReportForm; open = false;" type="button" class="dropdown-item text-danger">
+                                            <button wire:click="showReportForm" type="button" class="dropdown-item text-danger">
                                                 {{ __('commentify::commentify.comments.report') }}
                                             </button>
                                         </li>
                                     @endif
                                 @endif
                             </ul>
-                        @endif
                     </div>
                 </div>
                 <div class="mb-3">
