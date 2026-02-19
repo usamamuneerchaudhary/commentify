@@ -171,6 +171,7 @@ All configuration options are available in `config/commentify.php`:
 ```php
 return [
     'users_route_prefix' => 'users',        // Route prefix for user profiles
+    'user_model' => \App\Models\User::class, // Use your app's User model for avatars and user-related logic
     'pagination_count' => 10,                // Number of comments per page
     'css_framework' => 'tailwind',           // 'tailwind' or 'bootstrap'
     'comment_nesting' => true,              // Enable/disable nested comments
@@ -211,6 +212,8 @@ php`. We can add the following code:
 ```
 
 #### Additionally, add the `HasUserAvatar` trait in `App\Models\User`, to use avatars:
+
+1. Add the trait to your User model:
 ```php
 use Usamamuneerchaudhary\Commentify\Traits\HasUserAvatar;
 
@@ -218,6 +221,11 @@ class User extends Model
 {
     use HasUserAvatar;
 }
+```
+
+2. Set `user_model` in `config/commentify.php` so avatars and user-related logic load from your app's User model:
+```php
+'user_model' => \App\Models\User::class,
 ```
 
 ---

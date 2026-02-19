@@ -12,7 +12,6 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use Usamamuneerchaudhary\Commentify\Events\CommentReported;
 use Usamamuneerchaudhary\Commentify\Models\CommentReport;
-use Usamamuneerchaudhary\Commentify\Models\User;
 
 class Comment extends Component
 {
@@ -162,7 +161,7 @@ class Comment extends Component
     public function getUsers($searchTerm): void
     {
         if (! empty($searchTerm)) {
-            $this->users = User::where('name', 'like', '%'.$searchTerm.'%')->take(5)->get();
+            $this->users = config('commentify.user_model')::where('name', 'like', '%'.$searchTerm.'%')->take(5)->get();
         } else {
             $this->users = [];
         }

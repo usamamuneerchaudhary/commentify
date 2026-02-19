@@ -2,6 +2,7 @@
 
 return [
     'users_route_prefix' => 'users', //set this prefix to anything that you wish to use for users profile routes
+    'user_model' => \Usamamuneerchaudhary\Commentify\Models\User::class, // set to App\Models\User::class to use your app's User model for avatars
     'pagination_count' => 10,
     'css_framework' => 'tailwind', // Options: 'tailwind' or 'bootstrap'
     'comment_nesting' => true, // set to false if you don't want to allow nesting of comments

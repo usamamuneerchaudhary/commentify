@@ -9,7 +9,6 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Usamamuneerchaudhary\Commentify\Events\CommentPosted;
-use Usamamuneerchaudhary\Commentify\Models\User;
 
 class Comments extends Component
 {
@@ -141,7 +140,7 @@ class Comments extends Component
     public function getUsers(string $searchTerm): void
     {
         if (! empty($searchTerm)) {
-            $this->users = User::where('name', 'like', '%'.$searchTerm.'%')->take(5)->get();
+            $this->users = config('commentify.user_model')::where('name', 'like', '%'.$searchTerm.'%')->take(5)->get();
         } else {
             $this->users = [];
         }

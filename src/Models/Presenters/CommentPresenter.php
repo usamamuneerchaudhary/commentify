@@ -4,7 +4,6 @@ namespace Usamamuneerchaudhary\Commentify\Models\Presenters;
 
 use Illuminate\Support\HtmlString;
 use Usamamuneerchaudhary\Commentify\Models\Comment;
-use Usamamuneerchaudhary\Commentify\Models\User;
 
 class CommentPresenter
 {
@@ -48,7 +47,7 @@ class CommentPresenter
         $replacements = [];
 
         foreach ($usernames as $username) {
-            $user = User::where('name', $username)->first();
+            $user = config('commentify.user_model')::where('name', $username)->first();
 
             if ($user) {
                 $userRoutePrefix = config('commentify.users_route_prefix', 'users');

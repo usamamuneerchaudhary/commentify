@@ -47,7 +47,7 @@ class Comment extends Model
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(config('commentify.user_model'));
     }
 
     public function parent(): \Illuminate\Database\Eloquent\Relations\BelongsTo
