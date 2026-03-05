@@ -26,19 +26,19 @@
     },
     "require": {
         "php": "^8.2",
-        "illuminate/database": "^12.0",
-        "illuminate/support": "^12.0",
+        "illuminate/database": "^12.0|^13.0",
+        "illuminate/support": "^12.0|^13.0",
         "livewire/livewire": "^4.0",
         "livewire/flux": "^2.9",
-        "laravel/framework": "^12.0",
+        "laravel/framework": "^12.0|^13.0",
         "guzzlehttp/guzzle": "^7.9"
     },
     "suggest": {
         "filament/filament": "^4.0 - Required for Filament admin panel integration"
     },
     "require-dev": {
-        "orchestra/testbench": "^10.0",
-        "phpunit/phpunit": "^11.0"
+        "orchestra/testbench": "^10.0|^11.0",
+        "phpunit/phpunit": "^11.0|^12.5.12"
     },
     "autoload-dev": {
         "classmap": [
