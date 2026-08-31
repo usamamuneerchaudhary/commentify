@@ -7,9 +7,11 @@ This guide explains how to set up Filament admin panel integration for managing 
 First, install Filament in your main Laravel application:
 
 ```bash
-composer require filament/filament:"^4.0"
+composer require filament/filament:"^4.0|^5.0"
 php artisan filament:install --panels
 ```
+
+> **Note:** Filament v4 and v5 are both supported. Use `^5.0` if you are on Filament 5 only.
 
 ## Plugin Registration
 

@@ -31,14 +31,14 @@
         "livewire/livewire": "^4.0",
         "livewire/flux": "^2.9",
         "laravel/framework": "^12.0|^13.0",
-        "guzzlehttp/guzzle": "^7.9"
+        "guzzlehttp/guzzle": "^7.9|^8.0"
     },
     "suggest": {
-        "filament/filament": "^4.0 - Required for Filament admin panel integration"
+        "filament/filament": "^4.0|^5.0 - Required for Filament admin panel integration"
     },
     "require-dev": {
         "orchestra/testbench": "^10.0|^11.0",
-        "phpunit/phpunit": "^11.0|^12.5.12"
+        "phpunit/phpunit": "^11.5.50|^12.5|^13.0"
     },
     "autoload-dev": {
         "classmap": [

@@ -24,7 +24,7 @@ powerful tool for enhancing user engagement and collaboration.
 ## Features
 
 - ✅ Easy to integrate
-- ✅ Laravel 12+ support
+- ✅ Laravel 12 and 13 support
 - ✅ Livewire 4 support
 - ✅ Livewire powered commenting system
 - ✅ **CSS Framework Support**: Tailwind CSS and Bootstrap 5
@@ -51,7 +51,7 @@ powerful tool for enhancing user engagement and collaboration.
 ## Prerequisites
 
 - PHP 8.2 or higher
-- Laravel 12 or higher
+- Laravel 12 or 13
 - [Livewire 4](https://livewire.laravel.com/docs/installation)
 - [AlpineJS](https://alpinejs.dev/essentials/installation) (included with Livewire 4)
 - **CSS Framework** (choose one):
@@ -419,9 +419,11 @@ Commentify includes optional Filament admin panel integration for managing repor
 
 1. Install Filament in your Laravel application:
 ```bash
-composer require filament/filament:"^4.0"
+composer require filament/filament:"^4.0|^5.0"
 php artisan filament:install --panels
 ```
+
+> **Note:** Filament v4 and v5 are both supported. Use `^5.0` if you are on Filament 5 only.
 
 2. Register the Commentify plugin in your Filament panel configuration (e.g., `app/Providers/Filament/AdminPanelProvider.php`):
 
