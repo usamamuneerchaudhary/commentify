@@ -43,6 +43,7 @@ powerful tool for enhancing user engagement and collaboration.
 - ✅ Guest like/unlike of comments (based on `IP` & `UserAgent`)
 - ✅ Mention User with @ in Replies/Edits
 - ✅ Markdown Support
+- ✅ **Markdown Composer**: Write/Preview tabs and GitHub-style formatting toolbar (heading, bold, italic, strike, code, lists, tasks, mentions, emoji)
 - ✅ **Filament Admin Panel**: Optional Filament integration for managing comments and reports
 - ✅ Full language/translation support (publish and override as needed)
 - ✅ Customizable views (publish and override as needed)
@@ -188,6 +189,8 @@ return [
     'require_approval' => false,            // Require manual approval for comments before they appear
     'theme' => 'auto',                      // Theme mode: 'light', 'dark', 'auto'
     'enable_emoji_picker' => true,          // Enable/disable emoji picker
+    'enable_markdown_toolbar' => true,      // Show formatting toolbar on the comment composer
+    'enable_markdown_preview' => true,      // Show Write/Preview tabs on the comment composer
     'enable_notifications' => false,        // Enable/disable notifications
     'notification_channels' => ['database'], // Notification channels: 'database', 'mail', 'broadcast'
 ];
@@ -314,6 +317,21 @@ Commentify includes an emoji picker for rich commenting. Enable or disable it in
 ```
 
 The emoji picker automatically adapts to your theme (light/dark mode) and works with both Tailwind CSS and Bootstrap.
+
+---
+
+## Markdown Composer
+
+Commentify stores comments as Markdown and renders them safely with CommonMark (including strikethrough and autolinks).
+
+The composer includes optional **Write / Preview** tabs and a compact formatting toolbar:
+
+```php
+'enable_markdown_toolbar' => true,
+'enable_markdown_preview' => true,
+```
+
+Toolbar actions insert Markdown for headings, bold, italic, strikethrough, quotes, inline/code blocks, links, bullet/numbered/task lists, `@` mentions, and horizontal rules. The emoji picker inserts unicode at the cursor. Preview uses the same sanitized render pipeline as published comments.
 
 ---
 
