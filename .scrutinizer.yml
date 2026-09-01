@@ -1,0 +1,23 @@
+build:
+  environment:
+    php:
+      version: 8.3.3
+  dependencies:
+    before:
+      - wget -O composer.phar https://getcomposer.org/composer.phar
+      - chmod +x composer.phar
+      - ./composer.phar install
+  nodes:
+    analysis:
+      tests:
+        override:
+          - php-scrutinizer-run
+coding_style:
+  php:
+    spaces:
+      around_operators:
+        concatenation: true
+      ternary_operator:
+        in_short_version: false
+      other:
+        after_type_cast: true
