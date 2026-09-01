@@ -7,39 +7,35 @@ use Usamamuneerchaudhary\Commentify\Models\Comment;
 
 class CommentPresenter
 {
-    /**
-     * @var Comment
-     */
     public Comment $comment;
 
-    /**
-     * @param  Comment  $comment
-     */
     public function __construct(Comment $comment)
     {
         $this->comment = $comment;
     }
 
-    /**
-     * @return HtmlString
-     */
     public function markdownBody(): HtmlString
     {
         return new HtmlString(app('markdown')->convertToHtml($this->comment->body));
     }
 
     /**
-     * @return mixed
+     * Render markdown to safe HTML and linkify known @mentions for the composer preview.
      */
+    public static function preview(string $body): string
+    {
+        $html = (string) app('markdown')->convertToHtml($body);
+
+        $presenter = new self(new Comment(['body' => $body]));
+
+        return $presenter->replaceUserMentions($html);
+    }
+
     public function relativeCreatedAt(): mixed
     {
         return $this->comment->created_at->diffForHumans();
     }
 
-    /**
-     * @param $text
-     * @return array|string
-     */
     public function replaceUserMentions($text): array|string
     {
         preg_match_all('/@([A-Za-z0-9_]+)/', $text, $matches);
@@ -61,6 +57,4 @@ class CommentPresenter
 
         return str_replace(array_keys($replacements), array_values($replacements), $text);
     }
-
-
 }

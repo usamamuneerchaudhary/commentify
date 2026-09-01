@@ -13,6 +13,8 @@ return [
     'report_reasons' => ['spam', 'inappropriate', 'offensive', 'other'], // predefined report reasons (optional, currently using free text)
     'theme' => 'auto', // light, dark, auto - controls theme mode for comment components
     'enable_emoji_picker' => true, // set to false to disable emoji picker
+    'enable_markdown_toolbar' => true, // set to false to hide the markdown formatting toolbar
+    'enable_markdown_preview' => true, // set to false to hide Write/Preview tabs
     'enable_notifications' => false, // set to true to enable notifications for comment events
     'notification_channels' => ['database'], // available: database, mail, broadcast
     'require_approval' => false, // set to true to require manual approval for comments before they appear on frontend

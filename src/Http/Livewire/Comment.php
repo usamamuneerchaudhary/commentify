@@ -11,11 +11,12 @@ use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Usamamuneerchaudhary\Commentify\Events\CommentReported;
+use Usamamuneerchaudhary\Commentify\Http\Livewire\Concerns\PreviewsMarkdown;
 use Usamamuneerchaudhary\Commentify\Models\CommentReport;
 
 class Comment extends Component
 {
-    use AuthorizesRequests;
+    use AuthorizesRequests, PreviewsMarkdown;
 
     public $comment;
 

@@ -1,3 +1,6 @@
+@php
+    $toolbarBtn = 'rounded px-2 py-1 text-sm text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700';
+@endphp
 @if (!config('commentify.read_only'))
     <form class="mb-6" wire:submit="{{$method}}">
         @if (session()->has('message'))
@@ -18,131 +21,313 @@
         @endif
         @csrf
         <div
-            class="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700
-             ">
-            <label for="{{$inputId}}" class="sr-only">{{$inputLabel}}</label>
-            <div x-data="{
-        detectAtSymbol(event) {
-            const textarea = event.target;
-            const cursorPosition = textarea.selectionStart;
-            const textBeforeCursor = textarea.value.substring(0, cursorPosition);
-            const atSymbolPosition = textBeforeCursor.lastIndexOf('@');
-            if (atSymbolPosition !== -1) {
-                const searchTerm = textBeforeCursor.substring(atSymbolPosition + 1);
-                if (searchTerm.trim().length > 0) {
-                    this.$wire.getUsers(searchTerm);
-                }
-            }
-        },
-        showEmojiPicker: false,
-        initEmojiPicker() {
-            const picker = document.getElementById('emoji-picker-{{$inputId}}');
-            if (picker && !picker.hasAttribute('data-initialized')) {
-                picker.addEventListener('emoji-click', (event) => {
-                    const emoji = event.detail.emoji.unicode;
-                    const textarea = document.getElementById('{{$inputId}}');
+            class="relative mb-4 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+            x-data="{
+                mode: 'write',
+                previewHtml: '',
+                previewLoading: false,
+                showEmojiPicker: false,
+                emptyPreview: @js(__('commentify::commentify.comments.preview_empty')),
+                detectAtSymbol(event) {
+                    const textarea = event.target;
                     const cursorPosition = textarea.selectionStart;
-                    const textBefore = textarea.value.substring(0, cursorPosition);
-                    const textAfter = textarea.value.substring(cursorPosition);
-                    const newText = textBefore + emoji + textAfter;
-                    @this.set('{{$state}}.body', newText);
+                    const textBeforeCursor = textarea.value.substring(0, cursorPosition);
+                    const atSymbolPosition = textBeforeCursor.lastIndexOf('@');
+                    if (atSymbolPosition !== -1) {
+                        const searchTerm = textBeforeCursor.substring(atSymbolPosition + 1);
+                        if (searchTerm.trim().length > 0) {
+                            this.$wire.getUsers(searchTerm);
+                        }
+                    }
+                    this.autoGrow();
+                },
+                autoGrow() {
+                    const textarea = this.$refs.textarea;
+                    if (! textarea) {
+                        return;
+                    }
+                    textarea.style.height = 'auto';
+                    textarea.style.height = Math.min(textarea.scrollHeight, 320) + 'px';
+                },
+                getBody() {
+                    return this.$wire.get('{{ $state }}.body') || '';
+                },
+                setBody(value, cursorStart = null, cursorEnd = null) {
+                    @this.set('{{ $state }}.body', value);
+                    this.$nextTick(() => {
+                        const textarea = this.$refs.textarea;
+                        if (! textarea) {
+                            return;
+                        }
+                        textarea.focus();
+                        if (cursorStart !== null && cursorEnd !== null) {
+                            textarea.setSelectionRange(cursorStart, cursorEnd);
+                        }
+                        this.autoGrow();
+                    });
+                },
+                insertAtCursor(text) {
+                    const textarea = this.$refs.textarea;
+                    if (! textarea) {
+                        return;
+                    }
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    const value = textarea.value;
+                    const next = value.substring(0, start) + text + value.substring(end);
+                    const cursor = start + text.length;
+                    this.setBody(next, cursor, cursor);
+                },
+                wrapSelection(before, after = '', placeholder = '') {
+                    const textarea = this.$refs.textarea;
+                    if (! textarea) {
+                        return;
+                    }
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    const value = textarea.value;
+                    const selected = value.substring(start, end) || placeholder;
+                    const next = value.substring(0, start) + before + selected + after + value.substring(end);
+                    const cursorStart = start + before.length;
+                    const cursorEnd = cursorStart + selected.length;
+                    this.setBody(next, cursorStart, cursorEnd);
+                },
+                insertLinePrefix(prefix) {
+                    const textarea = this.$refs.textarea;
+                    if (! textarea) {
+                        return;
+                    }
+                    const start = textarea.selectionStart;
+                    const value = textarea.value;
+                    const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+                    const next = value.substring(0, lineStart) + prefix + value.substring(lineStart);
+                    const cursor = start + prefix.length;
+                    this.setBody(next, cursor, cursor);
+                },
+                insertCodeBlock() {
+                    this.wrapSelection('```\n', '\n```', '{{ __('commentify::commentify.comments.toolbar_code_block_placeholder') }}');
+                },
+                insertMention() {
+                    this.insertAtCursor('@');
+                    const textarea = this.$refs.textarea;
+                    if (textarea) {
+                        this.$nextTick(() => {
+                            textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                        });
+                    }
+                },
+                async setMode(mode) {
+                    this.mode = mode;
                     this.showEmojiPicker = false;
-                    textarea.focus();
-                    setTimeout(() => {
-                        textarea.setSelectionRange(cursorPosition + emoji.length, cursorPosition + emoji.length);
-                    }, 0);
-                });
-                picker.setAttribute('data-initialized', 'true');
-            }
-        }
-    }"
-    x-init="
-        if (typeof window.loadEmojiPicker === 'undefined') {
-            window.loadEmojiPicker = function() {
-                if (document.getElementById('emoji-picker-script')) return;
-                const script = document.createElement('script');
-                script.id = 'emoji-picker-script';
-                script.type = 'module';
-                script.src = 'https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js';
-                document.head.appendChild(script);
-            };
-            window.loadEmojiPicker();
-        }
-    ">
-                <div class="flex items-start gap-2">
-                    <textarea id="{{$inputId}}" rows="6"
-                              class="flex-1 px-0 w-full text-sm text-gray-900 border-0 focus:ring-0 focus:outline-none
-                                          dark:text-white dark:placeholder-gray-400 dark:bg-gray-800 @error($state.'.body')
-                                          border-red-500 @enderror"
-                              placeholder="{{ __('commentify::commentify.comments.write_comment') }}"
-                              wire:model.live="{{$state}}.body"
-                              @input="detectAtSymbol"
-                    ></textarea>
-                    @if(config('commentify.enable_emoji_picker', true))
-                        <div class="relative">
-                            <button 
-                                type="button" 
-                                @click="showEmojiPicker = !showEmojiPicker; $nextTick(() => initEmojiPicker())" 
-                                class="p-2 text-gray-500 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-400" 
-                                title="{{ __('commentify::commentify.comments.add_emoji') }}">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
+                    if (mode === 'preview') {
+                        this.previewLoading = true;
+                        try {
+                            const body = this.getBody();
+                            this.previewHtml = body.trim().length
+                                ? await this.$wire.previewMarkdown(body)
+                                : this.emptyPreview;
+                        } finally {
+                            this.previewLoading = false;
+                        }
+                    } else {
+                        this.$nextTick(() => this.autoGrow());
+                    }
+                },
+                ensureEmojiPickerLoaded() {
+                    if (typeof window.loadEmojiPicker === 'undefined') {
+                        window.loadEmojiPicker = function () {
+                            if (document.getElementById('emoji-picker-script')) {
+                                return Promise.resolve();
+                            }
+                            return new Promise((resolve) => {
+                                const script = document.createElement('script');
+                                script.id = 'emoji-picker-script';
+                                script.type = 'module';
+                                script.src = 'https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js';
+                                script.onload = () => resolve();
+                                script.onerror = () => resolve();
+                                document.head.appendChild(script);
+                            });
+                        };
+                    }
+                    return window.loadEmojiPicker();
+                },
+                async toggleEmojiPicker() {
+                    this.showEmojiPicker = ! this.showEmojiPicker;
+                    if (! this.showEmojiPicker) {
+                        return;
+                    }
+                    await this.ensureEmojiPickerLoaded();
+                    await this.$nextTick();
+                    this.initEmojiPicker();
+                },
+                initEmojiPicker() {
+                    const picker = this.$refs.emojiPicker;
+                    if (! picker || picker.hasAttribute('data-initialized')) {
+                        return;
+                    }
+                    picker.addEventListener('emoji-click', (event) => {
+                        const emoji = event.detail?.unicode || event.detail?.emoji?.unicode;
+                        if (! emoji) {
+                            return;
+                        }
+                        this.insertAtCursor(emoji);
+                        this.showEmojiPicker = false;
+                    });
+                    picker.setAttribute('data-initialized', 'true');
+                }
+            }"
+            x-init="
+                $nextTick(() => autoGrow());
+                ensureEmojiPickerLoaded();
+            "
+        >
+            @if (config('commentify.enable_markdown_preview', true) || config('commentify.enable_markdown_toolbar', true) || config('commentify.enable_emoji_picker', true))
+                <div class="relative z-20 flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 px-3 py-2 dark:border-gray-700">
+                    @if (config('commentify.enable_markdown_preview', true))
+                        <div class="flex items-center gap-1" role="tablist" aria-label="{{ __('commentify::commentify.comments.composer_tabs') }}">
+                            <button
+                                type="button"
+                                role="tab"
+                                @click="setMode('write')"
+                                :aria-selected="mode === 'write'"
+                                :class="mode === 'write'
+                                    ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white'
+                                    : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'"
+                                class="rounded-md px-2.5 py-1 text-sm font-medium"
+                            >
+                                {{ __('commentify::commentify.comments.write') }}
                             </button>
-                            <div 
-                                x-show="showEmojiPicker" 
-                                @click.away="showEmojiPicker = false" 
-                                x-cloak 
-                                class="absolute bottom-full right-0 mb-2 z-50"
-                                style="width: 352px; max-width: calc(100vw - 2rem);">
-                                <style>
-                                    emoji-picker {
-                                        --background: white;
-                                        --border-color: rgb(229, 231, 235);
-                                        --num-columns: 8;
-                                        --category-emoji-size: 1.5rem;
-                                        --emoji-size: 1.75rem;
-                                        border-radius: 0.5rem;
-                                        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-                                    }
-                                    .dark emoji-picker {
-                                        --background: rgb(17, 24, 39);
-                                        --border-color: rgb(55, 65, 81);
-                                        --text-color: rgb(243, 244, 246);
-                                    }
-                                </style>
-                                <emoji-picker 
-                                    id="emoji-picker-{{$inputId}}"
-                                ></emoji-picker>
-                            </div>
+                            <button
+                                type="button"
+                                role="tab"
+                                @click="setMode('preview')"
+                                :aria-selected="mode === 'preview'"
+                                :class="mode === 'preview'
+                                    ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white'
+                                    : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'"
+                                class="rounded-md px-2.5 py-1 text-sm font-medium"
+                            >
+                                {{ __('commentify::commentify.comments.preview') }}
+                            </button>
                         </div>
+                    @else
+                        <div></div>
                     @endif
+
+                    <div class="relative flex flex-wrap items-center gap-0.5" x-show="mode === 'write'">
+                        @if (config('commentify.enable_markdown_toolbar', true))
+                            <button type="button" @click="insertLinePrefix('### ')" class="{{ $toolbarBtn }} font-semibold" aria-label="{{ __('commentify::commentify.comments.toolbar_heading') }}" title="{{ __('commentify::commentify.comments.toolbar_heading') }}">H</button>
+                            <button type="button" @click="wrapSelection('**', '**', '{{ __('commentify::commentify.comments.toolbar_bold_placeholder') }}')" class="{{ $toolbarBtn }} font-bold" aria-label="{{ __('commentify::commentify.comments.toolbar_bold') }}" title="{{ __('commentify::commentify.comments.toolbar_bold') }}">B</button>
+                            <button type="button" @click="wrapSelection('*', '*', '{{ __('commentify::commentify.comments.toolbar_italic_placeholder') }}')" class="{{ $toolbarBtn }} italic" aria-label="{{ __('commentify::commentify.comments.toolbar_italic') }}" title="{{ __('commentify::commentify.comments.toolbar_italic') }}">I</button>
+                            <button type="button" @click="wrapSelection('~~', '~~', '{{ __('commentify::commentify.comments.toolbar_strike_placeholder') }}')" class="{{ $toolbarBtn }} line-through" aria-label="{{ __('commentify::commentify.comments.toolbar_strike') }}" title="{{ __('commentify::commentify.comments.toolbar_strike') }}">S</button>
+                            <button type="button" @click="insertLinePrefix('> ')" class="{{ $toolbarBtn }}" aria-label="{{ __('commentify::commentify.comments.toolbar_quote') }}" title="{{ __('commentify::commentify.comments.toolbar_quote') }}">&quot;</button>
+                            <button type="button" @click="wrapSelection('`', '`', '{{ __('commentify::commentify.comments.toolbar_code_placeholder') }}')" class="{{ $toolbarBtn }} font-mono" aria-label="{{ __('commentify::commentify.comments.toolbar_code') }}" title="{{ __('commentify::commentify.comments.toolbar_code') }}">&lt;/&gt;</button>
+                            <button type="button" @click="insertCodeBlock()" class="{{ $toolbarBtn }} font-mono text-xs" aria-label="{{ __('commentify::commentify.comments.toolbar_code_block') }}" title="{{ __('commentify::commentify.comments.toolbar_code_block') }}">{ }</button>
+                            <button type="button" @click="wrapSelection('[', '](https://)', '{{ __('commentify::commentify.comments.toolbar_link_placeholder') }}')" class="{{ $toolbarBtn }}" aria-label="{{ __('commentify::commentify.comments.toolbar_link') }}" title="{{ __('commentify::commentify.comments.toolbar_link') }}">Link</button>
+                            <button type="button" @click="insertLinePrefix('- ')" class="{{ $toolbarBtn }}" aria-label="{{ __('commentify::commentify.comments.toolbar_ul') }}" title="{{ __('commentify::commentify.comments.toolbar_ul') }}">•</button>
+                            <button type="button" @click="insertLinePrefix('1. ')" class="{{ $toolbarBtn }}" aria-label="{{ __('commentify::commentify.comments.toolbar_ol') }}" title="{{ __('commentify::commentify.comments.toolbar_ol') }}">1.</button>
+                            <button type="button" @click="insertLinePrefix('- [ ] ')" class="{{ $toolbarBtn }}" aria-label="{{ __('commentify::commentify.comments.toolbar_task') }}" title="{{ __('commentify::commentify.comments.toolbar_task') }}">☐</button>
+                            <button type="button" @click="insertMention()" class="{{ $toolbarBtn }}" aria-label="{{ __('commentify::commentify.comments.toolbar_mention') }}" title="{{ __('commentify::commentify.comments.toolbar_mention') }}">@</button>
+                            <button type="button" @click="insertAtCursor('\n\n---\n\n')" class="{{ $toolbarBtn }}" aria-label="{{ __('commentify::commentify.comments.toolbar_hr') }}" title="{{ __('commentify::commentify.comments.toolbar_hr') }}">—</button>
+                        @endif
+
+                        @if (config('commentify.enable_emoji_picker', true))
+                            <div class="relative">
+                                <button
+                                    type="button"
+                                    @click.stop="toggleEmojiPicker()"
+                                    class="rounded p-1.5 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+                                    title="{{ __('commentify::commentify.comments.add_emoji') }}"
+                                    aria-label="{{ __('commentify::commentify.comments.add_emoji') }}"
+                                    :aria-expanded="showEmojiPicker"
+                                >
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </button>
+                                <div
+                                    x-show="showEmojiPicker"
+                                    x-cloak
+                                    @click.outside="showEmojiPicker = false"
+                                    @click.stop
+                                    class="absolute right-0 top-full z-[100] mt-2"
+                                    style="width: 352px; max-width: min(352px, calc(100vw - 2rem));"
+                                >
+                                    <style>
+                                        emoji-picker {
+                                            --background: white;
+                                            --border-color: rgb(229, 231, 235);
+                                            --num-columns: 8;
+                                            --category-emoji-size: 1.5rem;
+                                            --emoji-size: 1.75rem;
+                                            border-radius: 0.5rem;
+                                            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                                            width: 100%;
+                                        }
+                                        .dark emoji-picker {
+                                            --background: rgb(17, 24, 39);
+                                            --border-color: rgb(55, 65, 81);
+                                            --text-color: rgb(243, 244, 246);
+                                        }
+                                    </style>
+                                    <emoji-picker x-ref="emojiPicker" id="emoji-picker-{{ $inputId }}"></emoji-picker>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
                 </div>
-            </div>
-            @if(!empty($users) && $users->count() > 0)
-                @include('commentify::livewire.partials.dropdowns.users')
             @endif
-            @error($state.'.body')
-            <p class="mt-2 text-sm text-red-600 dark:text-red-400">
-                {{$message}}
-            </p>
-            @enderror
+
+            <div class="px-4 py-2">
+                <label for="{{ $inputId }}" class="sr-only">{{ $inputLabel }}</label>
+                <textarea
+                    x-ref="textarea"
+                    x-show="mode === 'write'"
+                    id="{{ $inputId }}"
+                    rows="6"
+                    class="w-full resize-y border-0 bg-transparent px-0 text-sm text-gray-900 focus:outline-none focus:ring-0 dark:bg-transparent dark:text-white dark:placeholder-gray-400 @error($state.'.body') border-red-500 @enderror"
+                    placeholder="{{ __('commentify::commentify.comments.write_comment') }}"
+                    wire:model.live="{{ $state }}.body"
+                    @input="detectAtSymbol"
+                ></textarea>
+
+                @if (config('commentify.enable_markdown_preview', true))
+                    <div
+                        x-show="mode === 'preview'"
+                        x-cloak
+                        class="prose prose-sm dark:prose-invert min-h-[9rem] max-w-none text-sm text-gray-900 dark:text-gray-100"
+                    >
+                        <template x-if="previewLoading">
+                            <p class="text-gray-500 dark:text-gray-400">{{ __('commentify::commentify.comments.preview_loading') }}</p>
+                        </template>
+                        <div x-show="!previewLoading" x-html="previewHtml"></div>
+                    </div>
+                @endif
+            </div>
         </div>
 
+        @if (! empty($users) && $users->count() > 0)
+            @include('commentify::livewire.partials.dropdowns.users')
+        @endif
+        @error($state.'.body')
+            <p class="mt-2 text-sm text-red-600 dark:text-red-400">
+                {{ $message }}
+            </p>
+        @enderror
 
         <flux:button
             variant="primary"
             wire:loading.attr="disabled"
             type="submit">
-             <span wire:loading wire:target="{{ $method }}" class="mr-2">
-            @include('commentify::livewire.partials.loader')
-        </span>
+            <span wire:loading wire:target="{{ $method }}" class="mr-2">
+                @include('commentify::livewire.partials.loader')
+            </span>
             <span wire:loading.remove wire:target="{{ $method }}">
-            {{ $button }}
-        </span>
+                {{ $button }}
+            </span>
         </flux:button>
-
     </form>
 @else
-    <div class="text-gray-500 dark:text-gray-400 italic">{{ __('commentify::commentify.comments.read_only_message') }}</div>
+    <div class="italic text-gray-500 dark:text-gray-400">{{ __('commentify::commentify.comments.read_only_message') }}</div>
 @endif

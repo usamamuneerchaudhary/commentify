@@ -3,7 +3,7 @@
         @include('commentify::livewire.partials.comment-form',[
             'method'=>'editComment',
             'state'=>'editState',
-            'inputId'=> 'reply-comment',
+            'inputId'=> 'edit-comment-'.$comment->id,
             'inputLabel'=> __('commentify::commentify.comments.your_reply'),
             'button'=> __('commentify::commentify.comments.edit_comment')
         ])
@@ -83,7 +83,7 @@
         @include('commentify::livewire.partials.comment-form',[
            'method'=>'postReply',
            'state'=>'replyState',
-           'inputId'=> 'reply-comment',
+           'inputId'=> 'reply-comment-'.$comment->id,
            'inputLabel'=> __('commentify::commentify.comments.your_reply'),
            'button'=> __('commentify::commentify.comments.post_reply')
        ])

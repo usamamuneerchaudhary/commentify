@@ -108,6 +108,14 @@ class CommentifySettings extends Page implements HasForms
                         Forms\Components\Toggle::make('enable_emoji_picker')
                             ->label('Enable Emoji Picker')
                             ->default(true),
+                        Forms\Components\Toggle::make('enable_markdown_toolbar')
+                            ->label('Enable Markdown Toolbar')
+                            ->helperText('Show formatting buttons (bold, italic, code, link, lists) on the comment composer')
+                            ->default(true),
+                        Forms\Components\Toggle::make('enable_markdown_preview')
+                            ->label('Enable Markdown Preview')
+                            ->helperText('Show Write/Preview tabs on the comment composer')
+                            ->default(true),
                     ]),
                 Section::make('Notifications')
                     ->schema([

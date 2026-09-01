@@ -9,10 +9,11 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Usamamuneerchaudhary\Commentify\Events\CommentPosted;
+use Usamamuneerchaudhary\Commentify\Http\Livewire\Concerns\PreviewsMarkdown;
 
 class Comments extends Component
 {
-    use AuthorizesRequests, WithPagination;
+    use AuthorizesRequests, PreviewsMarkdown, WithPagination;
 
     public Model $model;
 
