@@ -1,8 +1,8 @@
 <?php
 
-use Usamamuneerchaudhary\Commentify\Models\Presenters\CommentPresenter;
-use Usamamuneerchaudhary\Commentify\Models\Comment;
 use Illuminate\Support\HtmlString;
+use Usamamuneerchaudhary\Commentify\Models\Comment;
+use Usamamuneerchaudhary\Commentify\Models\Presenters\CommentPresenter;
 use Usamamuneerchaudhary\Commentify\Models\User;
 
 class CommentPresenterTest extends TestCase
@@ -22,7 +22,7 @@ class CommentPresenterTest extends TestCase
         parent::setUp();
 
         $this->article = \ArticleStub::create([
-            'slug' => \Illuminate\Support\Str::slug('Article One')
+            'slug' => \Illuminate\Support\Str::slug('Article One'),
         ]);
         $this->user = User::factory()->create([
             'comment_banned_until' => null, // Not banned
@@ -34,7 +34,7 @@ class CommentPresenterTest extends TestCase
             'commentable_id' => $this->article->id,
             'user_id' => $this->user->id,
             'parent_id' => null,
-            'created_at' => date('Y-m-d H:i:s', strtotime('-1 hour'))
+            'created_at' => date('Y-m-d H:i:s', strtotime('-1 hour')),
         ]);
 
         $this->commentPresenter = new CommentPresenter($this->comment);
@@ -57,5 +57,38 @@ class CommentPresenterTest extends TestCase
     {
         $expectedOutput = 'Hello <a href="/users/usama">@usama</a>, this is a test comment mentioning!';
         $this->assertEquals($expectedOutput, $this->commentPresenter->replaceUserMentions($expectedOutput));
+    }
+
+    public function test_preview_renders_markdown_to_html(): void
+    {
+        $html = CommentPresenter::preview('**bold** and *italic*');
+
+        $this->assertStringContainsString('<strong>bold</strong>', $html);
+        $this->assertStringContainsString('<em>italic</em>', $html);
+    }
+
+    public function test_preview_supports_strikethrough_and_autolink(): void
+    {
+        $html = CommentPresenter::preview('This is ~~gone~~ and https://example.com');
+
+        $this->assertStringContainsString('<del>gone</del>', $html);
+        $this->assertStringContainsString('href="https://example.com"', $html);
+    }
+
+    public function test_preview_supports_task_lists(): void
+    {
+        $html = CommentPresenter::preview("- [ ] todo\n- [x] done");
+
+        $this->assertStringContainsString('type="checkbox"', $html);
+    }
+
+    public function test_preview_strips_unsafe_html(): void
+    {
+        $html = CommentPresenter::preview('Hello <script>alert(1)</script><b>world</b>');
+
+        $this->assertStringNotContainsString('<script>', $html);
+        $this->assertStringNotContainsString('</script>', $html);
+        $this->assertStringNotContainsString('<b>', $html);
+        $this->assertStringContainsString('world', $html);
     }
 }

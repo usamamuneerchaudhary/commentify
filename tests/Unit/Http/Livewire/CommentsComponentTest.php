@@ -188,4 +188,29 @@ class CommentsComponentTest extends TestCase
             ->assertSet('newCommentState.body', 'Hello @jane_doe ')
             ->assertSet('users', []);
     }
+
+    public function test_it_shows_markdown_composer_controls_when_enabled(): void
+    {
+        $this->actingAs($this->user);
+
+        Livewire::test(Comments::class, ['model' => $this->article])
+            ->assertSee('Write')
+            ->assertSee('Preview')
+            ->assertSeeHtml('aria-label="Bold"')
+            ->assertSeeHtml('aria-label="Heading"')
+            ->assertSeeHtml('aria-label="Task list"')
+            ->assertSeeHtml('aria-label="Add emoji"');
+    }
+
+    public function test_preview_markdown_returns_sanitized_html(): void
+    {
+        $this->actingAs($this->user);
+
+        $html = Livewire::test(Comments::class, ['model' => $this->article])
+            ->instance()
+            ->previewMarkdown('**hello** <script>alert(1)</script>');
+
+        $this->assertStringContainsString('<strong>hello</strong>', $html);
+        $this->assertStringNotContainsString('<script>', $html);
+    }
 }
