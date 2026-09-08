@@ -4,11 +4,15 @@ namespace Usamamuneerchaudhary\Commentify\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Usamamuneerchaudhary\Commentify\Database\Factories\CommentFactory;
 use Usamamuneerchaudhary\Commentify\Models\Presenters\CommentPresenter;
 use Usamamuneerchaudhary\Commentify\Scopes\CommentScopes;
 use Usamamuneerchaudhary\Commentify\Scopes\HasLikes;
+use Usamamuneerchaudhary\Commentify\Support\GuestAvatar;
 
 class Comment extends Model
 {
@@ -22,13 +26,24 @@ class Comment extends Model
     /**
      * @var string[]
      */
-    protected $fillable = ['body', 'is_approved'];
+    protected $fillable = [
+        'body',
+        'is_approved',
+        'pinned_at',
+        'guest_name',
+        'guest_email',
+        'ip',
+        'user_agent',
+        'import_source',
+        'import_id',
+    ];
 
     /**
      * @var string[]
      */
     protected $casts = [
         'is_approved' => 'boolean',
+        'pinned_at' => 'datetime',
     ];
 
     protected $withCount = [
@@ -45,27 +60,27 @@ class Comment extends Model
         return is_null($this->parent_id);
     }
 
-    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(config('commentify.user_model'));
     }
 
-    public function parent(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function parent(): BelongsTo
     {
         return $this->belongsTo(Comment::class, 'parent_id');
     }
 
-    public function children(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function children(): HasMany
     {
         return $this->hasMany(Comment::class, 'parent_id')->oldest();
     }
 
-    public function commentable(): \Illuminate\Database\Eloquent\Relations\MorphTo
+    public function commentable(): MorphTo
     {
         return $this->morphTo();
     }
 
-    public function reports(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function reports(): HasMany
     {
         return $this->hasMany(CommentReport::class);
     }
@@ -108,6 +123,47 @@ class Comment extends Model
     public function isPending(): bool
     {
         return $this->is_approved === false;
+    }
+
+    public function isPinned(): bool
+    {
+        return $this->pinned_at !== null;
+    }
+
+    public function isGuest(): bool
+    {
+        return $this->user_id === null;
+    }
+
+    public function authorName(): string
+    {
+        if ($this->isGuest()) {
+            return (string) ($this->guest_name ?? 'Guest');
+        }
+
+        return (string) ($this->user?->name ?? 'Guest');
+    }
+
+    public function authorEmail(): ?string
+    {
+        if ($this->isGuest()) {
+            return $this->guest_email;
+        }
+
+        return $this->user?->email;
+    }
+
+    public function authorAvatar(int $size = 80): string
+    {
+        if (! $this->isGuest() && $this->user !== null && method_exists($this->user, 'avatar')) {
+            return (string) $this->user->avatar();
+        }
+
+        if (config('commentify.guest.show_gravatar', true) && filled($this->guest_email)) {
+            return GuestAvatar::url($this->guest_email, $size);
+        }
+
+        return GuestAvatar::url(null, $size);
     }
 
     protected static function newFactory(): CommentFactory
