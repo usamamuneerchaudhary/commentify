@@ -2,18 +2,23 @@
 
 namespace Usamamuneerchaudhary\Commentify\Http\Livewire;
 
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Usamamuneerchaudhary\Commentify\Events\CommentPosted;
+use Usamamuneerchaudhary\Commentify\Http\Livewire\Concerns\PostsGuestComments;
 use Usamamuneerchaudhary\Commentify\Http\Livewire\Concerns\PreviewsMarkdown;
+use Usamamuneerchaudhary\Commentify\Models\Comment;
 
 class Comments extends Component
 {
-    use AuthorizesRequests, PreviewsMarkdown, WithPagination;
+    use AuthorizesRequests, PostsGuestComments, PreviewsMarkdown, WithPagination;
 
     public Model $model;
 
@@ -22,6 +27,12 @@ class Comments extends Component
     public $showDropdown = false;
 
     public $sort = 'newest';
+
+    public string $guest_name = '';
+
+    public string $guest_email = '';
+
+    public bool $subscribe_to_replies = false;
 
     protected $numberOfPaginatorsRendered = [];
 
@@ -48,7 +59,7 @@ class Comments extends Component
         $this->resetPage();
     }
 
-    public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\View|\Illuminate\Contracts\Foundation\Application|null
+    public function render(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|null
     {
         $requireApproval = config('commentify.require_approval', false);
 
@@ -74,6 +85,7 @@ class Comments extends Component
                 },
             ])
             ->parent()
+            ->pinnedFirst()
             ->withCount('children');
 
         // Filter by approval status if moderation is enabled
@@ -110,14 +122,20 @@ class Comments extends Component
         }
 
         // Authorize using the CommentPolicy@create method
-        $this->authorize('create', \Usamamuneerchaudhary\Commentify\Models\Comment::class);
+        $this->authorize('create', Comment::class);
 
-        $this->validate([
+        $rules = [
             'newCommentState.body' => 'required',
-        ]);
+        ];
+
+        if ($this->guestCommentsAllowed()) {
+            $rules = array_merge($rules, $this->guestCommentRules());
+        }
+
+        $this->validate($rules);
 
         $comment = $this->model->comments()->make($this->newCommentState);
-        $comment->user()->associate(auth()->user());
+        $this->associateCommentAuthor($comment);
 
         // Set approval status based on config
         $comment->is_approved = ! config('commentify.require_approval', false);
@@ -128,9 +146,23 @@ class Comments extends Component
             event(new CommentPosted($comment));
         }
 
+        if ($this->subscribe_to_replies && app()->bound('commentify.subscriptions')) {
+            $email = auth()->check() ? auth()->user()->email : $comment->guest_email;
+            $name = auth()->check() ? auth()->user()->name : $comment->guest_name;
+
+            app('commentify.subscriptions')->subscribeIfRequested(
+                $this->model,
+                true,
+                $email,
+                $name,
+                auth()->id()
+            );
+        }
+
         $this->newCommentState = [
             'body' => '',
         ];
+        $this->resetGuestFields();
         $this->users = [];
         $this->showDropdown = false;
 

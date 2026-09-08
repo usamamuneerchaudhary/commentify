@@ -10,13 +10,15 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Usamamuneerchaudhary\Commentify\Events\CommentPosted;
 use Usamamuneerchaudhary\Commentify\Events\CommentReported;
+use Usamamuneerchaudhary\Commentify\Http\Livewire\Concerns\PostsGuestComments;
 use Usamamuneerchaudhary\Commentify\Http\Livewire\Concerns\PreviewsMarkdown;
 use Usamamuneerchaudhary\Commentify\Models\CommentReport;
 
 class Comment extends Component
 {
-    use AuthorizesRequests, PreviewsMarkdown;
+    use AuthorizesRequests, PostsGuestComments, PreviewsMarkdown;
 
     public $comment;
 
@@ -33,6 +35,10 @@ class Comment extends Component
     public $isReporting = false;
 
     public $alreadyReported = false;
+
+    public string $guest_name = '';
+
+    public string $guest_email = '';
 
     public $reportState = [
         'reason' => '',
@@ -64,7 +70,7 @@ class Comment extends Component
     }
 
     /**
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function editComment(): void
     {
@@ -104,7 +110,7 @@ class Comment extends Component
         $this->showOptions = false;
     }
 
-    public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\View|\Illuminate\Contracts\Foundation\Application|null
+    public function render(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|null
     {
         return view('commentify::livewire.comment');
     }
@@ -124,11 +130,19 @@ class Comment extends Component
         if (! $this->comment->isParent()) {
             return;
         }
-        $this->validate([
+
+        $rules = [
             'replyState.body' => 'required',
-        ]);
+        ];
+
+        if ($this->guestCommentsAllowed()) {
+            $rules = array_merge($rules, $this->guestCommentRules());
+        }
+
+        $this->validate($rules);
+
         $reply = $this->comment->children()->make($this->replyState);
-        $reply->user()->associate(auth()->user());
+        $this->associateCommentAuthor($reply);
         $reply->commentable()->associate($this->comment->commentable);
 
         // Set approval status based on config
@@ -136,9 +150,14 @@ class Comment extends Component
 
         $reply->save();
 
+        if (config('commentify.enable_notifications', false)) {
+            event(new CommentPosted($reply));
+        }
+
         $this->replyState = [
             'body' => '',
         ];
+        $this->resetGuestFields();
         $this->isReplying = false;
         $this->showOptions = false;
         $this->dispatch('refresh')->self();
