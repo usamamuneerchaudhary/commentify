@@ -1,5 +1,5 @@
 @if(config('commentify.comment_nesting') === true)
-    @auth
+    @if(auth()->check() || config('commentify.allow_guests', false))
         @if($comment->isParent())
             <button type="button" wire:click="$toggle('isReplying')" class="btn btn-link btn-sm text-decoration-none p-0">
                 <svg aria-hidden="true" class="me-1" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -11,7 +11,7 @@
                 @include('commentify::livewire.partials.loader')
             </div>
         @endif
-    @endauth
+    @endif
     @if($comment->children->count())
         <button type="button" wire:click="$toggle('hasReplies')" class="btn btn-link btn-sm text-decoration-none p-0">
             @if(!$hasReplies)

@@ -12,8 +12,10 @@
             <footer class="flex justify-between items-center mb-1">
                 <div class="flex items-center">
                     <p class="inline-flex items-center mr-3 text-sm text-gray-900 dark:text-white">
-                        <img class="mr-2 w-6 h-6 rounded-full" src="{{$comment->user->avatar()}}" alt="{{$comment->user->name}}">
-                        {{Str::ucfirst($comment->user->name)}}
+                        <img class="mr-2 w-6 h-6 rounded-full" src="{{$comment->authorAvatar()}}" alt="{{$comment->authorName()}}">
+                        {{Str::ucfirst($comment->authorName())}}
+                        @includeIf('commentify-pro::partials.badges', ['comment' => $comment])
+                        @includeIf('commentify-pro::partials.pin-button', ['comment' => $comment])
                     </p>
                     <p class="text-sm text-gray-600 dark:text-gray-400">
                         <time pubdate datetime="{{$comment->presenter()->relativeCreatedAt()}}" title="{{$comment->presenter()->relativeCreatedAt()}}">
@@ -50,7 +52,7 @@
                                 @endcan
                                 @if(config('commentify.enable_reporting', true))
                                     @php
-                                        $isOwnComment = auth()->check() && auth()->id() == $comment->user_id;
+                                        $isOwnComment = auth()->check() && auth()->id() == $comment->user_id && ! $comment->isGuest();
                                     @endphp
                                     @if(!$isOwnComment)
                                         <li>

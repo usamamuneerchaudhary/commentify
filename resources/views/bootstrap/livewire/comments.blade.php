@@ -26,6 +26,7 @@
     @endif
 >
     <section class="py-4 py-md-5">
+        @includeIf('commentify-pro::partials.realtime', ['model' => $model])
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-10 col-xl-8">
@@ -77,6 +78,20 @@
                             'inputLabel'=> __('commentify::commentify.comments.your_comment'),
                             'button'=> __('commentify::commentify.comments.post_comment')
                         ])
+                    @elseif(config('commentify.allow_guests', false))
+                        @include('commentify::livewire.partials.comment-form',[
+                            'method'=>'postComment',
+                            'state'=>'newCommentState',
+                            'inputId'=> 'comment',
+                            'inputLabel'=> __('commentify::commentify.comments.your_comment'),
+                            'button'=> __('commentify::commentify.comments.post_comment')
+                        ])
+                        <p class="text-muted mt-2">
+                            {{ __('commentify::commentify.comments.or') }}
+                            <a href="{{ route('login', ['redirect' => request()->url()]) }}" class="text-decoration-none">
+                                {{ __('commentify::commentify.comments.login_to_comment') }}
+                            </a>
+                        </p>
                     @else
                         <p class="text-muted">
                             <a href="{{ route('login', ['redirect' => request()->url()]) }}" class="text-decoration-none">
