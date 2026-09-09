@@ -22,8 +22,8 @@ trait PostsGuestComments
 
         if (config('commentify.guest.require_email', true)) {
             $rules['guest_email'] = ['required', 'email', 'max:255'];
-        } else {
-            $rules['guest_email'] = ['nullable', 'email', 'max:255'];
+        } elseif (filled($this->guest_email)) {
+            $rules['guest_email'] = ['email', 'max:255'];
         }
 
         return $rules;
@@ -36,7 +36,7 @@ trait PostsGuestComments
         }
 
         $comment->guest_name = $this->guest_name ?? null;
-        $comment->guest_email = $this->guest_email ?? null;
+        $comment->guest_email = filled($this->guest_email) ? $this->guest_email : null;
         $comment->ip = request()->ip();
         $comment->user_agent = request()->userAgent();
     }

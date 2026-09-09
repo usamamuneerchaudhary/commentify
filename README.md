@@ -562,7 +562,7 @@ This will automatically register:
   - Configure most Commentify settings from Filament admin panel
   - Change CSS framework (Tailwind/Bootstrap)
   - Configure theme, sorting, reporting, notifications
-  - Guest commenting (`allow_guests`) is still set in `config/commentify.php`
+  - Guest commenting (`allow_guests`) is still set in `config/commentify.php` (or `commentify-pro.core` when Pro is installed)
 
 See [FILAMENT_SETUP.md](FILAMENT_SETUP.md) for detailed setup instructions.
 

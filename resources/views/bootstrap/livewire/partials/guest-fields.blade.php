@@ -8,6 +8,7 @@
                 type="text"
                 id="{{ $inputId }}-guest-name"
                 wire:model="guest_name"
+                required
                 class="form-control @error('guest_name') is-invalid @enderror"
                 placeholder="{{ __('commentify::commentify.comments.guest_name_placeholder') }}"
             />
@@ -23,6 +24,7 @@
                 type="email"
                 id="{{ $inputId }}-guest-email"
                 wire:model="guest_email"
+                @if (config('commentify.guest.require_email', true)) required @endif
                 class="form-control @error('guest_email') is-invalid @enderror"
                 placeholder="{{ __('commentify::commentify.comments.guest_email_placeholder') }}"
             />
