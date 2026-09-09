@@ -43,6 +43,28 @@ class User extends Authenticatable
 }
 ```
 
+## Step 2b: Comment permalinks
+
+Mail and broadcast notifications link to `#comment-{id}`. Implement `commentifyUrl()` on the commentable model, or set a resolver in a service provider:
+
+```php
+use Usamamuneerchaudhary\Commentify\Commentify;
+use Usamamuneerchaudhary\Commentify\Models\Comment;
+
+Commentify::resolveCommentUrlUsing(function (Comment $comment) {
+    return route('articles.show', $comment->commentable);
+});
+```
+
+```php
+public function commentifyUrl(): string
+{
+    return route('articles.show', $this);
+}
+```
+
+Without either, Commentify uses the previous URL, then `/`.
+
 ## Step 3: Display Notifications in Your UI
 
 ### Option A: Using Laravel's Default Notification Component

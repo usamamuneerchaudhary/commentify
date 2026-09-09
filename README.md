@@ -16,10 +16,11 @@ Commentify is a powerful Laravel Livewire package designed to provide an easy-to
 model in your Laravel application. Powered by Livewire, this package offers a seamless commenting experience with support
 for both Tailwind CSS and Bootstrap 5, making it easy for users to engage with your content. With features like comment
 sorting, pagination, reporting, emoji picker, and YouTube-style like/unlike buttons, this package is perfect for applications
-that require robust commenting capabilities. Additionally, guest users can like and unlike comments based on their IP addresses.
-Mentions can be used with "@" to tag specific users in replies and edits, while Markdown support allows for rich formatting
-in comments. Whether you're building a blog, an e-commerce platform, or any other type of web application, Commentify is a
-powerful tool for enhancing user engagement and collaboration.
+that require robust commenting capabilities. Guest users can like and unlike comments based on their IP addresses, and
+(opt-in) post with a name and email without creating an account. Mentions can be used with "@" to tag specific users in
+replies and edits, while Markdown support allows for rich formatting in comments. Whether you're building a blog, an
+e-commerce platform, or any other type of web application, Commentify is a powerful tool for enhancing user engagement
+and collaboration.
 
 ## Features
 
@@ -41,6 +42,7 @@ powerful tool for enhancing user engagement and collaboration.
 - ✅ Comments Pagination
 - ✅ YouTube style Like/unlike feature
 - ✅ Guest like/unlike of comments (based on `IP` & `UserAgent`)
+- ✅ **Guest commenting**: Opt-in name + email posting without an account (Gravatar, cannot edit/delete)
 - ✅ Mention User with @ in Replies/Edits
 - ✅ Markdown Support
 - ✅ **Markdown Composer**: Write/Preview tabs and GitHub-style formatting toolbar (heading, bold, italic, strike, code, lists, tasks, mentions, emoji)
@@ -193,6 +195,11 @@ return [
     'enable_markdown_preview' => true,      // Show Write/Preview tabs on the comment composer
     'enable_notifications' => false,        // Enable/disable notifications
     'notification_channels' => ['database'], // Notification channels: 'database', 'mail', 'broadcast'
+    'allow_guests' => false,                // Allow name + email commenting without an account
+    'guest' => [
+        'require_email' => true,            // Set false to make guest email optional
+        'show_gravatar' => true,            // Gravatar from guest email
+    ],
 ];
 ```
 
@@ -229,6 +236,49 @@ class User extends Model
 2. Set `user_model` in `config/commentify.php` so avatars and user-related logic load from your app's User model:
 ```php
 'user_model' => \App\Models\User::class,
+```
+
+3. Optional: give notification emails a stable permalink by adding `commentifyUrl()` on the commentable model:
+
+```php
+public function commentifyUrl(): string
+{
+    return route('articles.show', $this);
+}
+```
+
+---
+
+## 👤 Guest Commenting
+
+By default, only authenticated users can post. Set `allow_guests` to let visitors comment with a name and email:
+
+```php
+'allow_guests' => true,
+'guest' => [
+    'require_email' => true,
+    'show_gravatar' => true,
+],
+```
+
+When enabled:
+
+- The composer shows name and email fields for logged-out visitors (Tailwind and Bootstrap)
+- Email is required unless `guest.require_email` is `false`
+- Avatars use Gravatar when an email is present (`guest.show_gravatar`)
+- Guest comments store `guest_name`, `guest_email`, `ip`, and `user_agent`
+- Guests **cannot** edit or delete their comments
+- Pair with `require_approval` to hold guest posts for review before they appear
+
+Logged-in users keep the existing thread: edit, delete, mentions, and bans.
+
+If you publish views, republish them so `partials/guest-fields.blade.php` is included. In custom Blade, do not assume `$comment->user` exists:
+
+```php
+$comment->isGuest();
+$comment->authorName();
+$comment->authorEmail();
+$comment->authorAvatar();
 ```
 
 ---
@@ -344,6 +394,19 @@ Commentify supports notifications for comment events. Configure notifications in
 'notification_channels' => ['database', 'mail', 'broadcast'],
 ```
 
+Mail and broadcast “view comment” links resolve to `#comment-{id}` on the commentable URL. Implement `commentifyUrl()` on the model (see [Usage](#usage)), or set a global resolver:
+
+```php
+use Usamamuneerchaudhary\Commentify\Commentify;
+use Usamamuneerchaudhary\Commentify\Models\Comment;
+
+Commentify::resolveCommentUrlUsing(function (Comment $comment) {
+    return route('articles.show', $comment->commentable);
+});
+```
+
+If neither is set, Commentify falls back to the previous URL, then `/`.
+
 ### Available Notification Channels
 
 - **database**: Store notifications in the database
@@ -376,7 +439,7 @@ php artisan vendor:publish --tag="commentify-bootstrap-views"
 
 Published views will be available in `resources/views/vendor/commentify/` and can be customized as needed.
 
-> **Note**: Once views are published, they take precedence over package views. You'll need to manually update them when the package is updated.
+> **Note**: Once views are published, they take precedence over package views. You'll need to manually update them when the package is updated (4.0 adds `partials/guest-fields.blade.php`).
 
 ### Language Customization
 
@@ -426,6 +489,23 @@ Temporarily disable all commenting (for maintenance, etc):
 
 - All comment actions use Laravel policies.
 - You can customize permissions and ban logic in your `CommentPolicy`.
+- `create()` accepts a nullable user so guests can post when `allow_guests` is on. Guests still cannot update or delete.
+- If you copied `CommentPolicy` into your app, keep that nullable `?Authenticatable $user = null` signature.
+
+---
+
+## ⬆️ Upgrading to 4.0
+
+```bash
+composer require usamamuneerchaudhary/commentify:^4.0
+php artisan migrate
+```
+
+The 4.0 migration makes `user_id` **nullable** and adds `guest_name`, `guest_email`, `ip`, `user_agent`, `import_source`, and `import_id`. Merge `allow_guests` and `guest` into `config/commentify.php`. Guest commenting stays off until you enable it.
+
+`import_source` and `import_id` are indexed so you can map threads imported from another system. There is no importer UI in the free package.
+
+If you published views or overrode `CommentPolicy`, see **Guest Commenting** and **Authorization** above.
 
 ---
 
@@ -479,10 +559,10 @@ This will automatically register:
   - Filter by status (pending, reviewed, dismissed)
   
 - **Settings Page**: 
-  - Configure all Commentify settings from Filament admin panel
+  - Configure most Commentify settings from Filament admin panel
   - Change CSS framework (Tailwind/Bootstrap)
   - Configure theme, sorting, reporting, notifications
-  - No need to edit config files manually
+  - Guest commenting (`allow_guests`) is still set in `config/commentify.php`
 
 See [FILAMENT_SETUP.md](FILAMENT_SETUP.md) for detailed setup instructions.
 
@@ -496,7 +576,7 @@ composer test
 
 ## Security
 
-If you discover any security related issues, please email hello@usamamuneer.me instead of using the issue tracker.
+If you discover any security related issues, please email hello@usamamuneer.me instead of using the issue tracker. See [SECURITY.md](SECURITY.md).
 
 ## Credits
 
