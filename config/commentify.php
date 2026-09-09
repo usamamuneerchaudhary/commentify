@@ -18,4 +18,9 @@ return [
     'enable_notifications' => false, // set to true to enable notifications for comment events
     'notification_channels' => ['database'], // available: database, mail, broadcast
     'require_approval' => false, // set to true to require manual approval for comments before they appear on frontend
+    'allow_guests' => false, // set to true to allow name + email commenting without an account
+    'guest' => [
+        'require_email' => true,
+        'show_gravatar' => true,
+    ],
 ];
