@@ -17,13 +17,22 @@
             </div>
         @endif
         @csrf
+        @include('commentify::livewire.partials.guest-fields', [
+            'showGuestFields' => config('commentify.allow_guests', false) && auth()->guest(),
+        ])
         <div
             class="card mb-3 position-relative"
+            @if (config('commentify-pro.media.enabled', false))
+                @dragover.prevent="dragging = true"
+                @dragleave.prevent="dragging = false"
+                @drop.prevent="onDrop($event)"
+            @endif
             x-data="{
                 mode: 'write',
                 previewHtml: '',
                 previewLoading: false,
                 showEmojiPicker: false,
+                dragging: false,
                 emptyPreview: @js(__('commentify::commentify.comments.preview_empty')),
                 detectAtSymbol(event) {
                     const textarea = event.target;
@@ -172,6 +181,36 @@
                         this.showEmojiPicker = false;
                     });
                     picker.setAttribute('data-initialized', 'true');
+                },
+                async uploadImage(event) {
+                    const file = event.target.files?.[0] ?? event.dataTransfer?.files?.[0];
+                    if (! file) {
+                        return;
+                    }
+                    const form = new FormData();
+                    form.append('file', file);
+                    const response = await fetch('/commentify/api/v1/media', {
+                        method: 'POST',
+                        body: form,
+                        credentials: 'include',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                            'X-XSRF-TOKEN': decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? ''),
+                        },
+                    });
+                    if (! response.ok) {
+                        return;
+                    }
+                    const { url } = await response.json();
+                    this.insertAtCursor(`![image](${url})`);
+                    if (event.target?.value !== undefined) {
+                        event.target.value = '';
+                    }
+                },
+                onDrop(event) {
+                    this.dragging = false;
+                    this.uploadImage(event);
                 }
             }"
             x-init="
@@ -222,6 +261,12 @@
                             <button type="button" class="btn btn-sm btn-outline-secondary" @click="insertLinePrefix('1. ')" aria-label="{{ __('commentify::commentify.comments.toolbar_ol') }}" title="{{ __('commentify::commentify.comments.toolbar_ol') }}">1.</button>
                             <button type="button" class="btn btn-sm btn-outline-secondary" @click="insertLinePrefix('- [ ] ')" aria-label="{{ __('commentify::commentify.comments.toolbar_task') }}" title="{{ __('commentify::commentify.comments.toolbar_task') }}">☐</button>
                             <button type="button" class="btn btn-sm btn-outline-secondary" @click="insertMention()" aria-label="{{ __('commentify::commentify.comments.toolbar_mention') }}" title="{{ __('commentify::commentify.comments.toolbar_mention') }}">@</button>
+                            @if (config('commentify-pro.media.enabled', false))
+                                <label class="btn btn-sm btn-outline-secondary mb-0" title="{{ __('commentify::commentify.comments.toolbar_image') }}">
+                                    {{ __('commentify::commentify.comments.toolbar_image') }}
+                                    <input type="file" accept="image/*" class="d-none" x-on:change="uploadImage($event)" />
+                                </label>
+                            @endif
                             <button type="button" class="btn btn-sm btn-outline-secondary" @click="insertAtCursor('\n\n---\n\n')" aria-label="{{ __('commentify::commentify.comments.toolbar_hr') }}" title="{{ __('commentify::commentify.comments.toolbar_hr') }}">—</button>
                         @endif
 
@@ -308,6 +353,15 @@
                         {{ $message }}
                     </div>
                 @enderror
+
+                @if (config('commentify-pro.notifications.subscriptions_enabled', false) && config('commentify.enable_notifications', false))
+                    <div class="form-check mb-3">
+                        <input type="checkbox" wire:model="subscribe_to_replies" class="form-check-input" id="{{ $inputId }}-subscribe">
+                        <label class="form-check-label" for="{{ $inputId }}-subscribe">
+                            {{ __('commentify::commentify.comments.subscribe_to_replies') }}
+                        </label>
+                    </div>
+                @endif
             </div>
         </div>
         <button type="submit" wire:loading.attr="disabled" class="btn btn-primary">
