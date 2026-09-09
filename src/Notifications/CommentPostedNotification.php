@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Usamamuneerchaudhary\Commentify\Commentify;
 use Usamamuneerchaudhary\Commentify\Events\CommentPosted;
 
 class CommentPostedNotification extends Notification implements ShouldQueue
@@ -17,8 +18,7 @@ class CommentPostedNotification extends Notification implements ShouldQueue
      */
     public function __construct(
         public CommentPosted $event
-    ) {
-    }
+    ) {}
 
     /**
      * Get the notification's delivery channels.
@@ -42,11 +42,11 @@ class CommentPostedNotification extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject(__('commentify::commentify.notifications.comment_posted_subject'))
             ->line(__('commentify::commentify.notifications.comment_posted_line', [
-                'user' => $this->event->comment->user->name,
+                'user' => $this->event->comment->authorName(),
             ]))
             ->action(
                 __('commentify::commentify.notifications.view_comment'),
-                url('/comments/' . $this->event->comment->id)
+                Commentify::commentUrl($this->event->comment)
             );
     }
 
@@ -67,4 +67,3 @@ class CommentPostedNotification extends Notification implements ShouldQueue
         ];
     }
 }
-
