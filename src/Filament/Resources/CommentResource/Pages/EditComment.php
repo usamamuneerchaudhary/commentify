@@ -19,4 +19,3 @@ class EditComment extends EditRecord
         ];
     }
 }
-

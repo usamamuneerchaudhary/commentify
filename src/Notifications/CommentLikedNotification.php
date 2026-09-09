@@ -17,8 +17,7 @@ class CommentLikedNotification extends Notification implements ShouldQueue
      */
     public function __construct(
         public CommentLiked $event
-    ) {
-    }
+    ) {}
 
     /**
      * Get the notification's delivery channels.
@@ -44,7 +43,7 @@ class CommentLikedNotification extends Notification implements ShouldQueue
             ->line(__('commentify::commentify.notifications.comment_liked_line'))
             ->action(
                 __('commentify::commentify.notifications.view_comment'),
-                url('/comments/' . $this->event->comment->id)
+                url('/comments/'.$this->event->comment->id)
             );
     }
 
@@ -62,4 +61,3 @@ class CommentLikedNotification extends Notification implements ShouldQueue
         ];
     }
 }
-

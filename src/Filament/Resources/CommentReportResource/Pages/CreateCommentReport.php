@@ -9,4 +9,3 @@ class CreateCommentReport extends CreateRecord
 {
     protected static string $resource = CommentReportResource::class;
 }
-

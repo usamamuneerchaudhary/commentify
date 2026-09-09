@@ -36,28 +36,18 @@ class CommentReport extends Model
         'reviewed_at' => 'datetime',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function comment(): BelongsTo
     {
         return $this->belongsTo(Comment::class);
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(config('commentify.user_model'));
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(config('commentify.user_model'), 'reviewed_by');
     }
 }
-

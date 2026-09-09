@@ -2,6 +2,7 @@
 
 namespace Usamamuneerchaudhary\Commentify\Providers;
 
+use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
@@ -48,7 +49,7 @@ class CommentifyServiceProvider extends ServiceProvider
             ], 'commentify-bootstrap-views');
 
             // Only register Filament views for publishing if Filament is installed
-            if (class_exists(\Filament\Facades\Filament::class)) {
+            if (class_exists(Filament::class)) {
                 $this->publishes([
                     __DIR__.'/../../resources/views/filament' => resource_path('views/vendor/commentify'),
                 ], 'commentify-filament-views');
@@ -89,7 +90,7 @@ class CommentifyServiceProvider extends ServiceProvider
         }
 
         // Only load Filament views if Filament is installed
-        if (class_exists(\Filament\Facades\Filament::class)) {
+        if (class_exists(Filament::class)) {
             $filamentPath = __DIR__.'/../../resources/views/filament';
             $filamentPathTailwind = __DIR__.'/../../resources/views/tailwind/filament';
             $filamentPathBootstrap = __DIR__.'/../../resources/views/bootstrap/filament';

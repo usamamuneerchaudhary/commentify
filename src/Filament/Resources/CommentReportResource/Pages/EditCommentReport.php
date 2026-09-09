@@ -18,4 +18,3 @@ class EditCommentReport extends EditRecord
         ];
     }
 }
-

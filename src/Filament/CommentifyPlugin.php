@@ -19,7 +19,7 @@ class CommentifyPlugin implements Plugin
     public function register(Panel $panel): void
     {
         // Check if Filament is installed
-        if (!class_exists(Filament::class)) {
+        if (! class_exists(Filament::class)) {
             return;
         }
 
@@ -48,4 +48,3 @@ class CommentifyPlugin implements Plugin
         return filament(app(static::class)->getId());
     }
 }
-

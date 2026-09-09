@@ -7,13 +7,8 @@ use Usamamuneerchaudhary\Commentify\Models\Comment;
 
 trait Commentable
 {
-
-    /**
-     * @return MorphMany
-     */
-    public function comments(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable');
     }
-
 }

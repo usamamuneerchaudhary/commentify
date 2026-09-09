@@ -4,21 +4,14 @@ namespace Usamamuneerchaudhary\Commentify\Scopes;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Usamamuneerchaudhary\Commentify\Models\CommentLike;
-use Usamamuneerchaudhary\Commentify\Models\User;
 
 trait HasLikes
 {
-    /**
-     * @return HasMany
-     */
     public function likes(): HasMany
     {
         return $this->hasMany(CommentLike::class);
     }
 
-    /**
-     * @return bool
-     */
     public function isLiked(): bool
     {
         $ip = request()->ip();
@@ -45,9 +38,6 @@ trait HasLikes
         return false;
     }
 
-    /**
-     * @return bool
-     */
     public function removeLike(): bool
     {
         $ip = request()->ip();

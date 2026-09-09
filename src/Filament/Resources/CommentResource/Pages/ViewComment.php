@@ -18,4 +18,3 @@ class ViewComment extends ViewRecord
         ];
     }
 }
-

@@ -18,7 +18,5 @@ class CommentReported
     public function __construct(
         public Comment $comment,
         public CommentReport $report
-    ) {
-    }
+    ) {}
 }
-

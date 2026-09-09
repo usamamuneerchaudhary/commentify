@@ -17,4 +17,3 @@ class ListCommentReports extends ListRecords
         ];
     }
 }
-

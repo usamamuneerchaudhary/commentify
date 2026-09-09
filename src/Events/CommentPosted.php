@@ -16,7 +16,5 @@ class CommentPosted
      */
     public function __construct(
         public Comment $comment
-    ) {
-    }
+    ) {}
 }
-

@@ -12,9 +12,13 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <div class="d-flex align-items-center gap-2">
-                        <img class="rounded-circle" src="{{$comment->user->avatar()}}" alt="{{$comment->user->name}}" style="width: 32px; height: 32px;">
+                        <img class="rounded-circle" src="{{$comment->authorAvatar()}}" alt="{{$comment->authorName()}}" style="width: 32px; height: 32px;">
                         <div>
-                            <strong class="d-block">{{Str::ucfirst($comment->user->name)}}</strong>
+                            <strong class="d-block">
+                                {{Str::ucfirst($comment->authorName())}}
+                                @includeIf('commentify-pro::partials.badges', ['comment' => $comment])
+                                @includeIf('commentify-pro::partials.pin-button', ['comment' => $comment])
+                            </strong>
                             <small class="text-muted">
                                 <time pubdate datetime="{{$comment->presenter()->relativeCreatedAt()}}" title="{{$comment->presenter()->relativeCreatedAt()}}">
                                     {{$comment->presenter()->relativeCreatedAt()}}
@@ -56,7 +60,7 @@
                                 @endcan
                                 @if(config('commentify.enable_reporting', true))
                                     @php
-                                        $isOwnComment = auth()->check() && auth()->id() == $comment->user_id;
+                                        $isOwnComment = auth()->check() && auth()->id() == $comment->user_id && ! $comment->isGuest();
                                     @endphp
                                     @if(!$isOwnComment)
                                         <li>

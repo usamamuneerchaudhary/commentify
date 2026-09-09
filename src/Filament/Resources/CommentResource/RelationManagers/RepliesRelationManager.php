@@ -98,4 +98,3 @@ class RepliesRelationManager extends RelationManager
             ->defaultSort('created_at', 'asc');
     }
 }
-

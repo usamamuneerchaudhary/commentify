@@ -17,7 +17,5 @@ class CommentLiked
     public function __construct(
         public Comment $comment,
         public ?int $userId = null
-    ) {
-    }
+    ) {}
 }
-

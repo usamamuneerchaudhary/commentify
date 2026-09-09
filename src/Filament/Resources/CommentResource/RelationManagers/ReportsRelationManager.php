@@ -2,6 +2,12 @@
 
 namespace Usamamuneerchaudhary\Commentify\Filament\Resources\CommentResource\RelationManagers;
 
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -108,9 +114,9 @@ class ReportsRelationManager extends RelationManager
                 // Tables\Actions\CreateAction::make(),
             ])
             ->recordActions([
-                \Filament\Actions\ViewAction::make(),
-                \Filament\Actions\EditAction::make(),
-                \Filament\Actions\Action::make('review')
+                ViewAction::make(),
+                EditAction::make(),
+                Action::make('review')
                     ->label('Mark as Reviewed')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
@@ -123,7 +129,7 @@ class ReportsRelationManager extends RelationManager
                             'reviewed_at' => now(),
                         ]);
                     }),
-                \Filament\Actions\Action::make('dismiss')
+                Action::make('dismiss')
                     ->label('Dismiss')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
@@ -138,8 +144,8 @@ class ReportsRelationManager extends RelationManager
                     }),
             ])
             ->toolbarActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\BulkAction::make('mark_reviewed')
+                BulkActionGroup::make([
+                    BulkAction::make('mark_reviewed')
                         ->label('Mark as Reviewed')
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
@@ -153,10 +159,9 @@ class ReportsRelationManager extends RelationManager
                                 ]);
                             });
                         }),
-                    \Filament\Actions\DeleteBulkAction::make(),
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');
     }
 }
-
