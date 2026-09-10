@@ -1,6 +1,6 @@
 ## Commentify - Laravel Livewire Comments
 
-[![Commentify](public/images/readme-banner.png)](https://commentify.pro)
+[![Commentify](public/images/readme-banner.png)](https://commentify.pro/?utm_source=github&utm_medium=readme&utm_campaign=commentify)
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/usamamuneerchaudhary/commentify?style=flat-square&g)](https://packagist.org/packages/usamamuneerchaudhary/commentify)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/usamamuneerchaudhary/commentify/badges/quality-score.png?b=main)](https://scrutinizer-ci.com/g/usamamuneerchaudhary/commentify/?branch=main)
