@@ -1,5 +1,7 @@
 ## Commentify - Laravel Livewire Comments
 
+[![Commentify](public/images/readme-banner.png)](https://commentify.pro)
+
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/usamamuneerchaudhary/commentify?style=flat-square&g)](https://packagist.org/packages/usamamuneerchaudhary/commentify)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/usamamuneerchaudhary/commentify/badges/quality-score.png?b=main)](https://scrutinizer-ci.com/g/usamamuneerchaudhary/commentify/?branch=main)
 [![CodeFactor](https://www.codefactor.io/repository/github/usamamuneerchaudhary/commentify/badge)](https://www.codefactor.io/repository/github/usamamuneerchaudhary/commentify)
