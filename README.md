@@ -175,7 +175,9 @@ All configuration options are available in `config/commentify.php`:
 
 ```php
 return [
-    'users_route_prefix' => 'users',        // Route prefix for user profiles
+    'users_route_prefix' => 'users',        // Path prefix for profile links when no named route is set
+    'users_route_key' => 'name',            // Path segment: 'name' (/users/jane) or 'id' (/users/1)
+    'user_profile_route' => null,           // Optional named route (e.g. 'users.show'); preferred over prefix
     'user_model' => \App\Models\User::class, // Use your app's User model for avatars and user-related logic
     'pagination_count' => 10,                // Number of comments per page
     'css_framework' => 'tailwind',           // 'tailwind' or 'bootstrap'
@@ -192,9 +194,9 @@ return [
     ],
     'require_approval' => false,            // Require manual approval for comments before they appear
     'theme' => 'auto',                      // Theme mode: 'light', 'dark', 'auto'
-    'enable_emoji_picker' => true,          // Enable/disable emoji picker
     'enable_markdown_toolbar' => true,      // Show formatting toolbar on the comment composer
     'enable_markdown_preview' => true,      // Show Write/Preview tabs on the comment composer
+    'enable_emoji_picker' => true,          // Enable/disable emoji picker
     'enable_notifications' => false,        // Enable/disable notifications
     'notification_channels' => ['database'], // Notification channels: 'database', 'mail', 'broadcast'
     'allow_guests' => false,                // Allow name + email commenting without an account
@@ -204,6 +206,18 @@ return [
         'show_gravatar' => true,            // Gravatar from guest email
     ],
 ];
+```
+
+Mention `@username` links use the profile URL settings above. For resource-style `/users/{id}` profiles, set:
+
+```php
+'users_route_key' => 'id',
+```
+
+Or point at a named route:
+
+```php
+'user_profile_route' => 'users.show',
 ```
 
 ## Usage
@@ -511,6 +525,8 @@ The 4.0 migration makes `user_id` **nullable** and adds `guest_name`, `guest_ema
 If you published views or overrode `CommentPolicy`, see **Guest Commenting** and **Authorization** above.
 
 Add `login_route` to `config/commentify.php` if you publish config (empty string if you have no named login route). Missing routes fail quietly via `LoginUrl`.
+
+For `@mention` profile links, optionally set `users_route_key` to `id` (resource-style `/users/1`) or `user_profile_route` to a named route such as `users.show`. Default remains name-based `/users/{name}`.
 
 ---
 

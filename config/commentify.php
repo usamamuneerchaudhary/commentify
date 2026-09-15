@@ -3,7 +3,9 @@
 use Usamamuneerchaudhary\Commentify\Models\User;
 
 return [
-    'users_route_prefix' => 'users', // set this prefix to anything that you wish to use for users profile routes
+    'users_route_prefix' => 'users', // path prefix for profile links when user_profile_route is unset
+    'users_route_key' => 'name', // attribute used in the profile path: 'name' (default) or 'id'
+    'user_profile_route' => null, // optional named route (e.g. 'users.show'); preferred over prefix + key
     'user_model' => User::class, // set to App\Models\User::class to use your app's User model for avatars
     'pagination_count' => 10,
     'css_framework' => 'tailwind', // Options: 'tailwind' or 'bootstrap' (also sets Livewire pagination theme)

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\Str;
 use Usamamuneerchaudhary\Commentify\Models\Comment;
 use Usamamuneerchaudhary\Commentify\Models\Presenters\CommentPresenter;
 use Usamamuneerchaudhary\Commentify\Models\User;
@@ -17,12 +18,12 @@ class CommentPresenterTest extends TestCase
      */
     protected $commentPresenter;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
-        $this->article = \ArticleStub::create([
-            'slug' => \Illuminate\Support\Str::slug('Article One'),
+        $this->article = ArticleStub::create([
+            'slug' => Str::slug('Article One'),
         ]);
         $this->user = User::factory()->create([
             'comment_banned_until' => null, // Not banned
@@ -55,8 +56,24 @@ class CommentPresenterTest extends TestCase
 
     public function test_it_can_replace_user_mentions_in_text_with_links(): void
     {
-        $expectedOutput = 'Hello <a href="/users/usama">@usama</a>, this is a test comment mentioning!';
-        $this->assertEquals($expectedOutput, $this->commentPresenter->replaceUserMentions($expectedOutput));
+        User::factory()->create(['name' => 'usama']);
+
+        $this->assertSame(
+            'Hello <a href="/users/usama">@usama</a>, this is a test comment mentioning!',
+            $this->commentPresenter->replaceUserMentions('Hello @usama, this is a test comment mentioning!')
+        );
+    }
+
+    public function test_it_links_mentions_using_user_id_when_configured(): void
+    {
+        config(['commentify.users_route_key' => 'id']);
+
+        $user = User::factory()->create(['name' => 'usama']);
+
+        $this->assertSame(
+            'Hello <a href="/users/'.$user->id.'">@usama</a>!',
+            $this->commentPresenter->replaceUserMentions('Hello @usama!')
+        );
     }
 
     public function test_preview_renders_markdown_to_html(): void

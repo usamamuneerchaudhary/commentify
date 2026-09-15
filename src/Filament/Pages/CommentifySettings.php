@@ -50,7 +50,21 @@ class CommentifySettings extends Page implements HasForms
                         Forms\Components\TextInput::make('users_route_prefix')
                             ->label('Users Route Prefix')
                             ->default('users')
-                            ->required(),
+                            ->required()
+                            ->helperText('Used when User Profile Route is empty'),
+                        Forms\Components\Select::make('users_route_key')
+                            ->label('Users Route Key')
+                            ->options([
+                                'name' => 'Name (e.g. /users/jane)',
+                                'id' => 'ID (e.g. /users/1)',
+                            ])
+                            ->default('name')
+                            ->required()
+                            ->helperText('Path segment when using the prefix (not a named route)'),
+                        Forms\Components\TextInput::make('user_profile_route')
+                            ->label('User Profile Route')
+                            ->placeholder('users.show')
+                            ->helperText('Optional named route; preferred over prefix + key'),
                         Forms\Components\TextInput::make('pagination_count')
                             ->label('Comments Per Page')
                             ->numeric()

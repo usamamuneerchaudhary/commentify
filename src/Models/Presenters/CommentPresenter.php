@@ -4,6 +4,7 @@ namespace Usamamuneerchaudhary\Commentify\Models\Presenters;
 
 use Illuminate\Support\HtmlString;
 use Usamamuneerchaudhary\Commentify\Models\Comment;
+use Usamamuneerchaudhary\Commentify\Support\UserProfileUrl;
 
 class CommentPresenter
 {
@@ -45,11 +46,8 @@ class CommentPresenter
         foreach ($usernames as $username) {
             $user = config('commentify.user_model')::where('name', $username)->first();
 
-            if ($user) {
-                $userRoutePrefix = config('commentify.users_route_prefix', 'users');
-
-                $replacements['@'.$username] = '<a href="/'.$userRoutePrefix.'/'.$username.'">@'.$username.
-                    '</a>';
+            if ($user && ($profileUrl = UserProfileUrl::for($user))) {
+                $replacements['@'.$username] = '<a href="'.e($profileUrl).'">@'.$username.'</a>';
             } else {
                 $replacements['@'.$username] = '@'.$username;
             }
