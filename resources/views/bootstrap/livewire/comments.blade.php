@@ -33,7 +33,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h2 class="h3 mb-0">{{ __('commentify::commentify.comments.discussion') }} ({{$comments->total()}})</h2>
                         @if(config('commentify.enable_sorting', true) && $comments->total() > 0)
-                            <div class="dropdown position-relative" x-data="{ open: false }">
+                            <div class="dropdown position-relative" style="z-index: 30;" x-data="{ open: false }">
                                 <button @click="open = !open" type="button" class="btn btn-outline-secondary btn-sm" :class="{ 'show': open }" :aria-expanded="open">
                                     {{ __('commentify::commentify.comments.sort_by') }}
                                     <svg class="bi ms-1" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
@@ -88,15 +88,23 @@
                         ])
                         <p class="text-muted mt-2">
                             {{ __('commentify::commentify.comments.or') }}
-                            <a href="{{ route('login', ['redirect' => request()->url()]) }}" class="text-decoration-none">
+                            @if($loginUrl = \Usamamuneerchaudhary\Commentify\Support\LoginUrl::url())
+                                <a href="{{ $loginUrl }}" class="text-decoration-none">
+                                    {{ __('commentify::commentify.comments.login_to_comment') }}
+                                </a>
+                            @else
                                 {{ __('commentify::commentify.comments.login_to_comment') }}
-                            </a>
+                            @endif
                         </p>
                     @else
                         <p class="text-muted">
-                            <a href="{{ route('login', ['redirect' => request()->url()]) }}" class="text-decoration-none">
+                            @if($loginUrl = \Usamamuneerchaudhary\Commentify\Support\LoginUrl::url())
+                                <a href="{{ $loginUrl }}" class="text-decoration-none">
+                                    {{ __('commentify::commentify.comments.login_to_comment') }}
+                                </a>
+                            @else
                                 {{ __('commentify::commentify.comments.login_to_comment') }}
-                            </a>
+                            @endif
                         </p>
                     @endauth
                     @if($comments->count())

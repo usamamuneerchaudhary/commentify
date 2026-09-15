@@ -31,14 +31,14 @@
                 <h2 class="text-lg lg:text-2xl font-bold text-gray-900 dark:text-white">{{ __('commentify::commentify.comments.discussion') }}
                     ({{$comments->total()}})</h2>
                 @if(config('commentify.enable_sorting', true) && $comments->total() > 0)
-                    <div class="relative" x-data="{ open: false }">
+                    <div class="relative z-30" x-data="{ open: false }">
                         <button @click="open = !open" type="button" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700">
                             {{ __('commentify::commentify.comments.sort_by') }}
                             <svg class="w-2.5 h-2.5 ml-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
                             </svg>
                         </button>
-                        <div x-show="open" @click.away="open = false" x-cloak class="absolute z-10 right-0 mt-2 w-48 bg-white rounded-lg shadow-lg dark:bg-gray-700">
+                        <div x-show="open" @click.away="open = false" x-cloak class="absolute right-0 z-50 mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700">
                             <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
                                 <li>
                                     <button wire:click="$set('sort', 'newest')" type="button" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white {{ $sort === 'newest' ? 'bg-gray-100 dark:bg-gray-600' : '' }}">
@@ -83,10 +83,18 @@
                 ])
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     {{ __('commentify::commentify.comments.or') }}
-                    <a class="hover:underline" href="{{ route('login', ['redirect' => request()->url()]) }}">{{ __('commentify::commentify.comments.login_to_comment') }}</a>
+                    @if($loginUrl = \Usamamuneerchaudhary\Commentify\Support\LoginUrl::url())
+                        <a class="hover:underline" href="{{ $loginUrl }}">{{ __('commentify::commentify.comments.login_to_comment') }}</a>
+                    @else
+                        {{ __('commentify::commentify.comments.login_to_comment') }}
+                    @endif
                 </p>
             @else
-                <a class="mt-2 text-sm text-gray-600 dark:text-gray-400 hover:underline" href="{{ route('login', ['redirect' => request()->url()]) }}">{{ __('commentify::commentify.comments.login_to_comment') }}</a>
+                @if($loginUrl = \Usamamuneerchaudhary\Commentify\Support\LoginUrl::url())
+                    <a class="mt-2 text-sm text-gray-600 dark:text-gray-400 hover:underline" href="{{ $loginUrl }}">{{ __('commentify::commentify.comments.login_to_comment') }}</a>
+                @else
+                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">{{ __('commentify::commentify.comments.login_to_comment') }}</p>
+                @endif
             @endauth
             @if($comments->count())
                 @foreach($comments as $comment)
