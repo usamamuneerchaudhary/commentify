@@ -1,20 +1,21 @@
 <?php
 
+use Illuminate\Support\Str;
 use Usamamuneerchaudhary\Commentify\Models\Comment;
 use Usamamuneerchaudhary\Commentify\Models\User;
 
 class CommentTest extends TestCase
 {
-
     public $article;
+
     public $comment;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
-        $this->article = \ArticleStub::create([
-            'slug' => \Illuminate\Support\Str::slug('Article One')
+        $this->article = ArticleStub::create([
+            'slug' => Str::slug('Article One'),
         ]);
         $this->user = User::factory()->create([
             'comment_banned_until' => null, // Not banned
@@ -26,7 +27,7 @@ class CommentTest extends TestCase
             'commentable_id' => $this->article->id,
             'user_id' => $this->user->id,
             'parent_id' => null,
-            'created_at' => now()
+            'created_at' => now(),
         ]);
     }
 
@@ -34,12 +35,12 @@ class CommentTest extends TestCase
     {
         $user = User::factory()->create();
         $comment = Comment::factory()->create([
-            'user_id' => $user->id
+            'user_id' => $user->id,
         ]);
 
         $this->assertDatabaseHas('comments', [
             'id' => $comment->id,
-            'body' => $comment->body
+            'body' => $comment->body,
         ]);
     }
 
@@ -47,7 +48,7 @@ class CommentTest extends TestCase
     {
         $user = User::factory()->create();
         $comment = Comment::factory()->create([
-            'user_id' => $user->id
+            'user_id' => $user->id,
         ]);
 
         $this->assertInstanceOf(User::class, $comment->user);
@@ -56,10 +57,10 @@ class CommentTest extends TestCase
     public function test_comment_has_children_relation(): void
     {
         $comment = Comment::factory()->create([
-            'parent_id' => null
+            'parent_id' => null,
         ]);
         Comment::factory()->count(2)->create([
-            'parent_id' => $comment->id
+            'parent_id' => $comment->id,
         ]);
 
         $this->assertInstanceOf(Comment::class, $comment->children->first());

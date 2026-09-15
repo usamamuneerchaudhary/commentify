@@ -1,15 +1,15 @@
 <?php
 
+use Flux\FluxServiceProvider;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Livewire\LivewireServiceProvider;
 use Usamamuneerchaudhary\Commentify\Providers\CommentifyServiceProvider;
 
-abstract class TestCase extends \Orchestra\Testbench\TestCase
+abstract class TestCase extends Orchestra\Testbench\TestCase
 {
     /**
-     * @param $app
      * @return string[]
      */
     protected function getPackageProviders($app): array
@@ -20,29 +20,23 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         ];
     }
 
-    /**
-     * @return void
-     */
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
-        \Route::get('login', function () {
+        Route::get('login', function () {
             return 'login page';
         })->name('login');
-        $this->app->register(\Flux\FluxServiceProvider::class);
+        $this->app->register(FluxServiceProvider::class);
         Model::unguard();
 
         $this->artisan('migrate', [
             '--database' => 'testbench',
-            '--realpath' => realpath(__DIR__ . '/../database/migrations')
+            '--realpath' => realpath(__DIR__.'/../database/migrations'),
         ]);
     }
 
-    /**
-     * @return void
-     */
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         // Clean up database tables
         Schema::dropIfExists('comment_reports');
@@ -58,19 +52,14 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         parent::tearDown();
     }
 
-    /**
-     * @param $app
-     * @return void
-     */
     protected function getEnvironmentSetUp($app): void
     {
         $app['config']->set('database.default', 'testbench');
         $app['config']->set('database.connections.testbench', [
             'driver' => 'sqlite',
             'database' => ':memory:',
-            'prefix' => ''
+            'prefix' => '',
         ]);
-
 
         Schema::create('users', function ($table) {
             $table->increments('id');
@@ -93,5 +82,4 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             $table->timestamps();
         });
     }
-
 }
