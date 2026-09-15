@@ -21,7 +21,7 @@
         @endif
         @csrf
         @include('commentify::livewire.partials.guest-fields', [
-            'showGuestFields' => config('commentify.allow_guests', false) && auth()->guest(),
+            'showGuestFields' => $this->guestCommentsAllowed(),
         ])
         <div
             class="relative mb-4 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
@@ -222,7 +222,7 @@
             "
         >
             @if (config('commentify.enable_markdown_preview', true) || config('commentify.enable_markdown_toolbar', true) || config('commentify.enable_emoji_picker', true))
-                <div class="relative z-20 flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 px-3 py-2 dark:border-gray-700">
+                <div class="relative z-10 flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 px-3 py-2 dark:border-gray-700">
                     @if (config('commentify.enable_markdown_preview', true))
                         <div class="flex items-center gap-1" role="tablist" aria-label="{{ __('commentify::commentify.comments.composer_tabs') }}">
                             <button

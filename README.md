@@ -198,6 +198,7 @@ return [
     'enable_notifications' => false,        // Enable/disable notifications
     'notification_channels' => ['database'], // Notification channels: 'database', 'mail', 'broadcast'
     'allow_guests' => false,                // Allow name + email commenting without an account
+    'login_route' => 'login',               // Named route for the composer login link; empty if you have none
     'guest' => [
         'require_email' => true,            // Set false to make guest email optional
         'show_gravatar' => true,            // Gravatar from guest email
@@ -508,6 +509,8 @@ The 4.0 migration makes `user_id` **nullable** and adds `guest_name`, `guest_ema
 `import_source` and `import_id` are indexed so you can map threads imported from another system. There is no importer UI in the free package.
 
 If you published views or overrode `CommentPolicy`, see **Guest Commenting** and **Authorization** above.
+
+Add `login_route` to `config/commentify.php` if you publish config (empty string if you have no named login route). Missing routes fail quietly via `LoginUrl`.
 
 ---
 
