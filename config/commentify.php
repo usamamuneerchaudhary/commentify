@@ -1,8 +1,10 @@
 <?php
 
+use Usamamuneerchaudhary\Commentify\Models\User;
+
 return [
-    'users_route_prefix' => 'users', //set this prefix to anything that you wish to use for users profile routes
-    'user_model' => \Usamamuneerchaudhary\Commentify\Models\User::class, // set to App\Models\User::class to use your app's User model for avatars
+    'users_route_prefix' => 'users', // set this prefix to anything that you wish to use for users profile routes
+    'user_model' => User::class, // set to App\Models\User::class to use your app's User model for avatars
     'pagination_count' => 10,
     'css_framework' => 'tailwind', // Options: 'tailwind' or 'bootstrap'
     'comment_nesting' => true, // set to false if you don't want to allow nesting of comments
@@ -19,6 +21,7 @@ return [
     'notification_channels' => ['database'], // available: database, mail, broadcast
     'require_approval' => false, // set to true to require manual approval for comments before they appear on frontend
     'allow_guests' => false, // set to true to allow name + email commenting without an account
+    'login_route' => 'login', // named route for the login link; leave empty or unset if the route does not exist
     'guest' => [
         'require_email' => true,
         'show_gravatar' => true,
