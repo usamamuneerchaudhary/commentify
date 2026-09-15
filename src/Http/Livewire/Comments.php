@@ -54,6 +54,24 @@ class Comments extends Component
         $this->sort = config('commentify.default_sort', 'newest');
     }
 
+    /**
+     * Keep Livewire's paginator views aligned with commentify.css_framework.
+     */
+    public function paginationView(): string
+    {
+        return 'livewire::'.$this->commentifyPaginationTheme();
+    }
+
+    public function paginationSimpleView(): string
+    {
+        return 'livewire::simple-'.$this->commentifyPaginationTheme();
+    }
+
+    protected function commentifyPaginationTheme(): string
+    {
+        return config('commentify.css_framework') === 'bootstrap' ? 'bootstrap' : 'tailwind';
+    }
+
     public function updatedSort(): void
     {
         $this->resetPage();

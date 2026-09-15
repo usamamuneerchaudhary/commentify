@@ -132,7 +132,7 @@ Commentify supports both **Tailwind CSS** and **Bootstrap 5**. Choose your prefe
 - **Tailwind CSS** (default): Modern utility-first CSS framework
 - **Bootstrap**: Popular CSS framework with components
 
-The package will automatically load the appropriate views based on your selection. You can switch frameworks at any time by updating the config value.
+The package will automatically load the appropriate views based on your selection, including Livewire’s pagination theme (so Bootstrap installs no longer need a separate `livewire.pagination_theme` change). You can switch frameworks at any time by updating the config value.
 
 ### Publish `tailwind.config.js` file (Tailwind only)
 

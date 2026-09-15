@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Usamamuneerchaudhary\Commentify\Http\Livewire\Comments;
 use Usamamuneerchaudhary\Commentify\Models\Comment;
@@ -13,15 +14,15 @@ class CommentsComponentTest extends TestCase
 
     public $comment;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
-        $this->article = \ArticleStub::create([
-            'slug' => \Illuminate\Support\Str::slug('Article One'),
+        $this->article = ArticleStub::create([
+            'slug' => Str::slug('Article One'),
         ]);
-        $this->episode = \EpisodeStub::create([
-            'slug' => \Illuminate\Support\Str::slug('Episode One'),
+        $this->episode = EpisodeStub::create([
+            'slug' => Str::slug('Episode One'),
         ]);
         $this->user = User::factory()->create([
             'comment_banned_until' => null, // Not banned
@@ -141,6 +142,33 @@ class CommentsComponentTest extends TestCase
             ->assertSee(10)
             ->assertSeeHtml('<span wire:key="paginator-page-page1">')
             ->assertSee(2); // second page link
+    }
+
+    public function test_pagination_uses_bootstrap_theme_when_css_framework_is_bootstrap(): void
+    {
+        config(['commentify.css_framework' => 'bootstrap']);
+
+        Comment::factory(15)->create([
+            'commentable_id' => $this->article->id,
+            'commentable_type' => 'ArticleStub',
+        ]);
+
+        Livewire::test(Comments::class, ['model' => $this->article])
+            ->assertSeeHtml('class="pagination"')
+            ->assertSeeHtml('class="page-item')
+            ->assertDontSeeHtml('flex items-center justify-between');
+    }
+
+    public function test_pagination_uses_tailwind_theme_by_default(): void
+    {
+        Comment::factory(15)->create([
+            'commentable_id' => $this->article->id,
+            'commentable_type' => 'ArticleStub',
+        ]);
+
+        Livewire::test(Comments::class, ['model' => $this->article])
+            ->assertSeeHtml('flex items-center justify-between')
+            ->assertDontSeeHtml('class="page-item');
     }
 
     public function test_no_pagination_links_if_comments_count_less_than_10(): void

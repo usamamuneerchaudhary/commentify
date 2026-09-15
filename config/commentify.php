@@ -6,7 +6,7 @@ return [
     'users_route_prefix' => 'users', // set this prefix to anything that you wish to use for users profile routes
     'user_model' => User::class, // set to App\Models\User::class to use your app's User model for avatars
     'pagination_count' => 10,
-    'css_framework' => 'tailwind', // Options: 'tailwind' or 'bootstrap'
+    'css_framework' => 'tailwind', // Options: 'tailwind' or 'bootstrap' (also sets Livewire pagination theme)
     'comment_nesting' => true, // set to false if you don't want to allow nesting of comments
     'read_only' => false, // set to true if you want to make comments read only
     'default_sort' => 'newest', // newest, oldest, most_liked, most_replied
