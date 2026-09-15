@@ -13,6 +13,7 @@ use Usamamuneerchaudhary\Commentify\Models\Presenters\CommentPresenter;
 use Usamamuneerchaudhary\Commentify\Scopes\CommentScopes;
 use Usamamuneerchaudhary\Commentify\Scopes\HasLikes;
 use Usamamuneerchaudhary\Commentify\Support\GuestAvatar;
+use Usamamuneerchaudhary\Commentify\Support\IntegerAuthId;
 
 class Comment extends Model
 {
@@ -62,7 +63,13 @@ class Comment extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(config('commentify.user_model'));
+        $model = config('commentify.user_model');
+
+        if (! is_string($model) || ! is_a($model, Model::class, true)) {
+            throw new \RuntimeException('commentify.user_model must be an Eloquent model class.');
+        }
+
+        return $this->belongsTo($model);
     }
 
     public function parent(): BelongsTo
@@ -92,8 +99,10 @@ class Comment extends Model
     {
         $query = $this->reports();
 
-        if (auth()->check()) {
-            return $query->where('user_id', auth()->id())->exists();
+        $userId = IntegerAuthId::get();
+
+        if ($userId !== null) {
+            return $query->where('user_id', $userId)->exists();
         }
 
         $ip = request()->ip();

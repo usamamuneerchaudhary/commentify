@@ -4,9 +4,13 @@ namespace Usamamuneerchaudhary\Commentify\Scopes;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Usamamuneerchaudhary\Commentify\Models\CommentLike;
+use Usamamuneerchaudhary\Commentify\Support\IntegerAuthId;
 
 trait HasLikes
 {
+    /**
+     * @return HasMany<CommentLike, $this>
+     */
     public function likes(): HasMany
     {
         return $this->hasMany(CommentLike::class);
@@ -16,13 +20,14 @@ trait HasLikes
     {
         $ip = request()->ip();
         $userAgent = request()->userAgent();
+        $userId = IntegerAuthId::get();
 
-        if (auth()->user()) {
+        if ($userId !== null) {
             if ($this->relationLoaded('likes')) {
-                return $this->likes->contains('user_id', auth()->user()->id);
+                return $this->likes->contains('user_id', $userId);
             }
 
-            return $this->likes()->where('user_id', auth()->user()->id)->exists();
+            return $this->likes()->where('user_id', $userId)->exists();
         }
 
         if ($ip && $userAgent) {
@@ -42,12 +47,14 @@ trait HasLikes
     {
         $ip = request()->ip();
         $userAgent = request()->userAgent();
-        if (auth()->user()) {
-            return $this->likes()->where('user_id', auth()->user()->id)->where('comment_id', $this->id)->delete();
+        $userId = IntegerAuthId::get();
+
+        if ($userId !== null) {
+            return (bool) $this->likes()->where('user_id', $userId)->where('comment_id', $this->id)->delete();
         }
 
         if ($ip && $userAgent) {
-            return $this->likes()->forIp($ip)->forUserAgent($userAgent)->delete();
+            return (bool) $this->likes()->forIp($ip)->forUserAgent($userAgent)->delete();
         }
 
         return false;

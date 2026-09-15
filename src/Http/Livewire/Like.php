@@ -8,6 +8,7 @@ use Illuminate\Foundation\Application;
 use Livewire\Component;
 use Usamamuneerchaudhary\Commentify\Events\CommentLiked;
 use Usamamuneerchaudhary\Commentify\Models\Comment;
+use Usamamuneerchaudhary\Commentify\Support\IntegerAuthId;
 
 class Like extends Component
 {
@@ -29,15 +30,15 @@ class Like extends Component
             $this->comment->removeLike();
 
             $this->count--;
-        } elseif (auth()->user()) {
+        } elseif (($userId = IntegerAuthId::get()) !== null) {
             $this->comment->likes()->create([
-                'user_id' => auth()->id(),
+                'user_id' => $userId,
             ]);
 
             $this->count++;
 
             if (config('commentify.enable_notifications', false)) {
-                event(new CommentLiked($this->comment, auth()->id()));
+                event(new CommentLiked($this->comment, $userId));
             }
         } elseif ($ip && $userAgent) {
             $this->comment->likes()->create([
