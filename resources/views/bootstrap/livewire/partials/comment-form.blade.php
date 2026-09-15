@@ -18,7 +18,7 @@
         @endif
         @csrf
         @include('commentify::livewire.partials.guest-fields', [
-            'showGuestFields' => config('commentify.allow_guests', false) && auth()->guest(),
+            'showGuestFields' => $this->guestCommentsAllowed(),
         ])
         <div
             class="card mb-3 position-relative"
