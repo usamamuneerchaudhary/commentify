@@ -38,7 +38,8 @@
     },
     "require-dev": {
         "orchestra/testbench": "^10.0|^11.0",
-        "phpunit/phpunit": "^11.5.50|^12.5|^13.0"
+        "phpunit/phpunit": "^11.5.50|^12.5|^13.0",
+        "usamamuneerchaudhary/laravel-slipway": "^1.8"
     },
     "autoload-dev": {
         "classmap": [
@@ -49,7 +50,12 @@
         ]
     },
     "scripts": {
-        "test": "vendor/bin/phpunit"
+        "post-autoload-dump": [
+            "@php vendor/bin/testbench package:discover --ansi"
+        ],
+        "test": "vendor/bin/phpunit",
+        "slipway:compile": "@php vendor/bin/testbench slipway:compile",
+        "slipway:check": "@php vendor/bin/testbench slipway:check"
     },
     "config": {
         "sort-packages": true
