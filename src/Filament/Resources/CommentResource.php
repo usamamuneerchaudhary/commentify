@@ -30,6 +30,9 @@ class CommentResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    /**
+     * Form schema for editing a comment in the admin panel.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -70,6 +73,9 @@ class CommentResource extends Resource
             ]);
     }
 
+    /**
+     * Table of comments in the admin panel.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -226,6 +232,9 @@ class CommentResource extends Resource
             ->defaultSort('created_at', 'desc');
     }
 
+    /**
+     * Relation managers shown on a comment.
+     */
     public static function getRelations(): array
     {
         return [
@@ -234,6 +243,9 @@ class CommentResource extends Resource
         ];
     }
 
+    /**
+     * Pages registered for the comment resource.
+     */
     public static function getPages(): array
     {
         return [

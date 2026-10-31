@@ -40,6 +40,9 @@ final class UserProfileUrl
         return '/'.trim($prefix, '/').'/'.$segment;
     }
 
+    /**
+     * Path segment used for this user, from the configured profile route key.
+     */
     protected static function segment(Model $user): mixed
     {
         $key = config('commentify.users_route_key', 'name');

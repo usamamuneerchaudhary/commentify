@@ -10,6 +10,9 @@ class ListComments extends ListRecords
 {
     protected static string $resource = CommentResource::class;
 
+    /**
+     * Header actions for the comments list. Creating a comment from here stays disabled.
+     */
     protected function getHeaderActions(): array
     {
         return [

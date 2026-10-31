@@ -22,6 +22,9 @@ class RepliesRelationManager extends RelationManager
 
     protected static ?string $recordTitleAttribute = 'id';
 
+    /**
+     * Form schema for a reply managed from its parent comment.
+     */
     public function form(Schema $schema): Schema
     {
         return $schema
@@ -40,6 +43,9 @@ class RepliesRelationManager extends RelationManager
             ]);
     }
 
+    /**
+     * Table of replies belonging to the parent comment.
+     */
     public function table(Table $table): Table
     {
         return $table

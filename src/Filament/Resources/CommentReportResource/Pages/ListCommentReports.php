@@ -10,6 +10,9 @@ class ListCommentReports extends ListRecords
 {
     protected static string $resource = CommentReportResource::class;
 
+    /**
+     * Header actions for the reports list.
+     */
     protected function getHeaderActions(): array
     {
         return [

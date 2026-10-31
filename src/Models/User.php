@@ -17,11 +17,17 @@ class User extends BaseUser
      */
     protected $table = 'users';
 
+    /**
+     * Create a new factory instance for the package test user.
+     */
     protected static function newFactory(): UserFactory
     {
         return UserFactory::new();
     }
 
+    /**
+     * Likes this user has cast.
+     */
     public function likes(): HasMany
     {
         return $this->hasMany(CommentLike::class);

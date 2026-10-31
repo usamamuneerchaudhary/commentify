@@ -10,6 +10,9 @@ class EditComment extends EditRecord
 {
     protected static string $resource = CommentResource::class;
 
+    /**
+     * Header actions for the comment edit page.
+     */
     protected function getHeaderActions(): array
     {
         return [

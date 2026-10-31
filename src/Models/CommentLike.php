@@ -30,11 +30,17 @@ class CommentLike extends Model
         'user_agent',
     ];
 
+    /**
+     * Limit the query to likes from one IP address.
+     */
     public function scopeForIp($query, string $ip): mixed
     {
         return $query->where('ip', $ip);
     }
 
+    /**
+     * Limit the query to likes from one user agent.
+     */
     public function scopeForUserAgent($query, string $userAgent): mixed
     {
         return $query->where('user_agent', $userAgent);

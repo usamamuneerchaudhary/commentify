@@ -22,16 +22,25 @@ class CommentifySettings extends Page implements HasForms
 
     public ?array $data = [];
 
+    /**
+     * Sidebar label for the settings page.
+     */
     public static function getNavigationLabel(): string
     {
         return 'Commentify Settings';
     }
 
+    /**
+     * Blade view that renders the settings form.
+     */
     public function getView(): string
     {
         return 'commentify::pages.settings';
     }
 
+    /**
+     * Settings form bound to the commentify config.
+     */
     public function form(Schema $schema): Schema
     {
         return $schema
@@ -171,11 +180,17 @@ class CommentifySettings extends Page implements HasForms
             ->statePath('data');
     }
 
+    /**
+     * Fill the form from the current commentify config.
+     */
     public function mount(): void
     {
         $this->form->fill(config('commentify', []));
     }
 
+    /**
+     * Write the form state back to config/commentify.php.
+     */
     public function save(): void
     {
         $data = $this->form->getState();

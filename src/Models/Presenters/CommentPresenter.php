@@ -10,11 +10,17 @@ class CommentPresenter
 {
     public Comment $comment;
 
+    /**
+     * Wrap a comment so views can ask it for display values.
+     */
     public function __construct(Comment $comment)
     {
         $this->comment = $comment;
     }
 
+    /**
+     * Render the comment body as sanitized HTML.
+     */
     public function markdownBody(): HtmlString
     {
         return new HtmlString(app('markdown')->convertToHtml($this->comment->body));
@@ -32,11 +38,17 @@ class CommentPresenter
         return $presenter->replaceUserMentions($html);
     }
 
+    /**
+     * Human-readable time since the comment was created.
+     */
     public function relativeCreatedAt(): mixed
     {
         return $this->comment->created_at->diffForHumans();
     }
 
+    /**
+     * Turn @mentions in the given text into profile links.
+     */
     public function replaceUserMentions($text): array|string
     {
         preg_match_all('/@([A-Za-z0-9_]+)/', $text, $matches);

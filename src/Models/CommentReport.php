@@ -52,6 +52,8 @@ class CommentReport extends Model
     ];
 
     /**
+     * The comment this report is about.
+     *
      * @return BelongsTo<Comment, $this>
      */
     public function comment(): BelongsTo
@@ -60,6 +62,8 @@ class CommentReport extends Model
     }
 
     /**
+     * The account that filed this report.
+     *
      * @return BelongsTo<Model, $this>
      */
     public function user(): BelongsTo
@@ -74,6 +78,8 @@ class CommentReport extends Model
     }
 
     /**
+     * The moderator who reviewed this report.
+     *
      * @return BelongsTo<Model, $this>
      */
     public function reviewer(): BelongsTo

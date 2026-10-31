@@ -12,7 +12,7 @@ class CommentPolicy
     use HandlesAuthorization;
 
     /**
-     * Determine whether the user can view any comments.
+     * Determine whether this visitor may create a comment.
      */
     public function create(?Authenticatable $user = null): Response
     {
@@ -33,6 +33,8 @@ class CommentPolicy
     }
 
     /**
+     * Allow the author to edit the comment, and deny guests and banned users.
+     *
      * @param  Authenticatable  $user
      */
     public function update($user, Comment $comment): Response
@@ -50,6 +52,8 @@ class CommentPolicy
     }
 
     /**
+     * Allow the author to delete the comment, and deny guests and banned users.
+     *
      * @param  Authenticatable  $user
      */
     public function destroy($user, Comment $comment): Response

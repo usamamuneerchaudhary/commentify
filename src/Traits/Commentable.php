@@ -7,6 +7,9 @@ use Usamamuneerchaudhary\Commentify\Models\Comment;
 
 trait Commentable
 {
+    /**
+     * Comments left on this model.
+     */
     public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable');

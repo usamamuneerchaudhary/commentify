@@ -14,6 +14,8 @@ use Usamamuneerchaudhary\Commentify\Models\Comment;
 class CommentTree
 {
     /**
+     * Prepare a loader for one commentable thread.
+     *
      * @param  null|(callable(mixed): void)  $orderChildren
      */
     public function __construct(
@@ -22,6 +24,9 @@ class CommentTree
         private mixed $orderChildren = null,
     ) {}
 
+    /**
+     * Paginate root comments and preload replies with the configured loader.
+     */
     public function paginate(string $sort): LengthAwarePaginator
     {
         $loader = $this->loader();
@@ -39,6 +44,9 @@ class CommentTree
             ->paginate($this->perPage());
     }
 
+    /**
+     * Return the configured tree loader, eager or cte.
+     */
     public function loader(): string
     {
         $loader = config('commentify.tree_loader', 'eager');
@@ -50,12 +58,17 @@ class CommentTree
         return $loader;
     }
 
+    /**
+     * How many reply levels to preload, clamped from 0 to 50.
+     */
     public function maxDepth(): int
     {
         return max(0, min(50, (int) config('commentify.max_depth', 2)));
     }
 
     /**
+     * Top-level comments for this commentable, sorted and ready to paginate.
+     *
      * @return MorphMany<Comment, Model>
      */
     private function rootQuery(string $sort): MorphMany
@@ -88,6 +101,8 @@ class CommentTree
     }
 
     /**
+     * Eager-load map for replies down to the given depth.
+     *
      * @return array<string, mixed>
      */
     private function nestedEagerLoads(int $depth): array
@@ -123,6 +138,8 @@ class CommentTree
     }
 
     /**
+     * Attach CTE descendants onto the current page of root comments.
+     *
      * @param  Collection<int, Comment>  $roots
      */
     private function attachDescendants(Collection $roots): void
@@ -153,6 +170,8 @@ class CommentTree
     }
 
     /**
+     * Rows returned by the recursive query for these root ids.
+     *
      * @param  array<int, mixed>  $rootIds
      * @return list<object>
      */
@@ -190,6 +209,8 @@ class CommentTree
     }
 
     /**
+     * Id query that keeps global scopes and soft deletes on the recursive union.
+     *
      * @return Builder<Comment>
      */
     private function scopedIdQuery(): Builder
@@ -204,6 +225,8 @@ class CommentTree
     }
 
     /**
+     * Load the comment models for one set of descendant ids.
+     *
      * @param  list<int>  $ids
      * @return Builder<Comment>
      */
@@ -221,6 +244,8 @@ class CommentTree
     }
 
     /**
+     * Group flat CTE rows into child relations, stopping at the max depth.
+     *
      * @param  Collection<int, Comment>  $nodes
      * @param  array<int, list<Comment>>  $childrenOf
      * @param  array<int, int>  $depths
@@ -243,6 +268,9 @@ class CommentTree
         }
     }
 
+    /**
+     * Fail when this database cannot run a recursive common table expression.
+     */
     private function assertRecursiveCteSupported(): void
     {
         $connection = (new Comment)->getConnection();
@@ -269,6 +297,9 @@ class CommentTree
         throw new RuntimeException("The cte tree loader requires {$engine}. This connection reported [{$version}].");
     }
 
+    /**
+     * Page size from commentify.pagination_count.
+     */
     private function perPage(): int
     {
         return max(1, (int) config('commentify.pagination_count', 10));

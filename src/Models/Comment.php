@@ -52,17 +52,25 @@ class Comment extends Model
         'likes',
     ];
 
+    /**
+     * Display helper for this comment.
+     */
     public function presenter(): CommentPresenter
     {
         return new CommentPresenter($this);
     }
 
+    /**
+     * Whether this comment is a top-level comment rather than a reply.
+     */
     public function isParent(): bool
     {
         return is_null($this->parent_id);
     }
 
     /**
+     * The account that wrote this comment.
+     *
      * @return BelongsTo<Model, $this>
      */
     public function user(): BelongsTo
@@ -76,12 +84,17 @@ class Comment extends Model
         return $this->belongsTo($model);
     }
 
+    /**
+     * The comment this one replies to.
+     */
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Comment::class, 'parent_id');
     }
 
     /**
+     * Replies to this comment, oldest first.
+     *
      * @return HasMany<Comment, $this>
      */
     public function children(): HasMany
@@ -90,6 +103,8 @@ class Comment extends Model
     }
 
     /**
+     * The model this comment was left on.
+     *
      * @return MorphTo<Model, $this>
      */
     public function commentable(): MorphTo
@@ -97,6 +112,9 @@ class Comment extends Model
         return $this->morphTo();
     }
 
+    /**
+     * Reports filed against this comment.
+     */
     public function reports(): HasMany
     {
         return $this->hasMany(CommentReport::class);
@@ -144,11 +162,17 @@ class Comment extends Model
         return $this->is_approved === false;
     }
 
+    /**
+     * Whether this comment is pinned to the top of its thread.
+     */
     public function isPinned(): bool
     {
         return $this->pinned_at !== null;
     }
 
+    /**
+     * Whether a revision row exists for this comment.
+     */
     public function isEdited(): bool
     {
         if (! Schema::hasTable('commentify_comment_revisions')) {
@@ -161,11 +185,17 @@ class Comment extends Model
             ->exists();
     }
 
+    /**
+     * Whether a guest, rather than an account, wrote this comment.
+     */
     public function isGuest(): bool
     {
         return $this->user_id === null;
     }
 
+    /**
+     * Name shown for the author, including guests.
+     */
     public function authorName(): string
     {
         if ($this->isGuest()) {
@@ -175,6 +205,9 @@ class Comment extends Model
         return (string) ($this->user?->name ?? 'Guest');
     }
 
+    /**
+     * Email stored for the author, when one exists.
+     */
     public function authorEmail(): ?string
     {
         if ($this->isGuest()) {
@@ -184,6 +217,9 @@ class Comment extends Model
         return $this->user?->email;
     }
 
+    /**
+     * Avatar URL for the author.
+     */
     public function authorAvatar(int $size = 80): string
     {
         if (! $this->isGuest() && $this->user !== null && method_exists($this->user, 'avatar')) {
@@ -197,6 +233,9 @@ class Comment extends Model
         return GuestAvatar::url(null, $size);
     }
 
+    /**
+     * Create a new factory instance for comments.
+     */
     protected static function newFactory(): CommentFactory
     {
         return CommentFactory::new();

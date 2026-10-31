@@ -11,6 +11,9 @@ class CommentUnliked
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    /**
+     * Carry the comment that was unliked and, when known, the user who unliked it.
+     */
     public function __construct(
         public Comment $comment,
         public ?int $userId = null

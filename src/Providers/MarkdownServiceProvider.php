@@ -12,6 +12,9 @@ use League\CommonMark\MarkdownConverter;
 
 class MarkdownServiceProvider extends ServiceProvider
 {
+    /**
+     * Register the CommonMark converter that renders comment bodies and strips raw HTML.
+     */
     public function register(): void
     {
         $this->app->singleton('markdown', function () {
@@ -29,6 +32,9 @@ class MarkdownServiceProvider extends ServiceProvider
         });
     }
 
+    /**
+     * Markdown is configured during registration, so there is nothing to boot.
+     */
     public function boot(): void
     {
         //

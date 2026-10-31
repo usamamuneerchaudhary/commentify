@@ -17,6 +17,9 @@ use function Livewire\after;
 
 class CommentifyServiceProvider extends ServiceProvider
 {
+    /**
+     * Merge the package config, bind the comment policy, and register Markdown.
+     */
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../../config/commentify.php', 'commentify');
@@ -30,6 +33,9 @@ class CommentifyServiceProvider extends ServiceProvider
         $this->app->register(MarkdownServiceProvider::class);
     }
 
+    /**
+     * Publish assets, load views, translations, and migrations, and register the Livewire components.
+     */
     public function boot(): void
     {
         if ($this->app->runningInConsole()) {

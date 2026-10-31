@@ -6,12 +6,17 @@ use Usamamuneerchaudhary\Commentify\Models\Comment;
 
 trait PostsGuestComments
 {
+    /**
+     * Whether the current visitor is a guest and guest comments are enabled.
+     */
     protected function guestCommentsAllowed(): bool
     {
         return config('commentify.allow_guests', false) && auth()->guest();
     }
 
     /**
+     * Validation rules for the guest name and email fields.
+     *
      * @return array<string, mixed>
      */
     protected function guestCommentRules(): array
@@ -29,6 +34,9 @@ trait PostsGuestComments
         return $rules;
     }
 
+    /**
+     * Copy the guest name, email, IP, and user agent onto a comment before it is saved.
+     */
     protected function applyGuestAttributes(Comment $comment): void
     {
         if (! $this->guestCommentsAllowed()) {
@@ -41,6 +49,9 @@ trait PostsGuestComments
         $comment->user_agent = request()->userAgent();
     }
 
+    /**
+     * Attach the signed-in user, or the guest fields when nobody is signed in.
+     */
     protected function associateCommentAuthor(Comment $comment): void
     {
         if (auth()->check()) {
@@ -52,6 +63,9 @@ trait PostsGuestComments
         $this->applyGuestAttributes($comment);
     }
 
+    /**
+     * Clear the guest name and email after a successful post.
+     */
     protected function resetGuestFields(): void
     {
         if (property_exists($this, 'guest_name')) {

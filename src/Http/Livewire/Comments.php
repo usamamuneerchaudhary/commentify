@@ -56,6 +56,9 @@ class Comments extends Component
         'newCommentState.body' => 'comment',
     ];
 
+    /**
+     * Store the commentable model and the thread name for this component.
+     */
     public function mount(Model $model, ?string $thread = null): void
     {
         $this->model = $model;
@@ -63,32 +66,49 @@ class Comments extends Component
         $this->thread = ($thread !== null && $thread !== '') ? $thread : 'default';
     }
 
+    /**
+     * Thread name used for queries, falling back to default.
+     */
     public function resolvedThread(): string
     {
         return $this->thread !== '' ? $this->thread : 'default';
     }
 
+    /**
+     * Whether commentify.read_only is on.
+     */
     public function commentsAreReadOnly(): bool
     {
         return (bool) config('commentify.read_only', false);
     }
 
+    /**
+     * Read one commentify config value.
+     */
     public function commentSetting(string $key, mixed $default = null): mixed
     {
         return config('commentify.'.$key, $default);
     }
 
+    /**
+     * Whether new comments stay hidden until a moderator approves them.
+     */
     public function commentsRequireApproval(): bool
     {
         return (bool) config('commentify.require_approval', false);
     }
 
+    /**
+     * How many comments a visitor may post inside the rate-limit window.
+     */
     protected function commentRateLimitMax(): int
     {
         return (int) config('commentify.rate_limit.max_attempts', 5);
     }
 
     /**
+     * Validation rules merged into postComment. Pro adds its own here.
+     *
      * @return array<string, mixed>
      */
     protected function extraPostingRules(): array
@@ -97,6 +117,8 @@ class Comments extends Component
     }
 
     /**
+     * Attributes copied from the composer onto a new comment. Only the body is included, so a rating is not mass-assigned.
+     *
      * @return array<string, mixed>
      */
     protected function newCommentAttributes(): array
@@ -106,6 +128,9 @@ class Comments extends Component
         ];
     }
 
+    /**
+     * Set the thread on a new comment when that column exists.
+     */
     protected function prepareCommentForCreate(Comment $comment): void
     {
         if (Comment::hasThreadColumn()) {
@@ -113,16 +138,24 @@ class Comments extends Component
         }
     }
 
+    /**
+     * Return false to stop the save without a success flash. Pro uses this for its own checks.
+     */
     protected function beforeCommentCreate(Comment $comment): bool
     {
         return true;
     }
 
     /**
+     * Hook for ordering preloaded replies. The default leaves the query unchanged.
+     *
      * @param  Builder<Model>|Relation<Model, Model, mixed>  $query
      */
     protected function orderChildren(Builder|Relation $query): void {}
 
+    /**
+     * Clear the body, guest fields, and mention dropdown after a successful post.
+     */
     protected function resetComposer(): void
     {
         $this->newCommentState = [
@@ -141,26 +174,41 @@ class Comments extends Component
         return 'livewire::'.$this->commentifyPaginationTheme();
     }
 
+    /**
+     * Simple paginator view matching the configured CSS framework.
+     */
     public function paginationSimpleView(): string
     {
         return 'livewire::simple-'.$this->commentifyPaginationTheme();
     }
 
+    /**
+     * Livewire pagination theme name for the configured CSS framework.
+     */
     protected function commentifyPaginationTheme(): string
     {
         return config('commentify.css_framework') === 'bootstrap' ? 'bootstrap' : 'tailwind';
     }
 
+    /**
+     * Reset to the first page when the sort changes.
+     */
     public function updatedSort(): void
     {
         $this->resetPage();
     }
 
+    /**
+     * Markup shown while a lazy comments component is loading.
+     */
     public function placeholder(): View
     {
         return view('commentify::livewire.placeholder');
     }
 
+    /**
+     * Render the thread for the current sort and loader.
+     */
     public function render(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|null
     {
         $comments = (new CommentTree(
@@ -176,6 +224,9 @@ class Comments extends Component
         ]);
     }
 
+    /**
+     * Validate and store a new top-level comment, aborting when a listener cancels CommentPosting.
+     */
     #[On('refresh')]
     public function postComment(): void
     {
@@ -248,6 +299,9 @@ class Comments extends Component
         session()->flash('message', 'Comment Posted Successfully!');
     }
 
+    /**
+     * Search users for the @mention dropdown.
+     */
     public function getUsers(string $searchTerm): void
     {
         if (! empty($searchTerm)) {
@@ -257,6 +311,9 @@ class Comments extends Component
         }
     }
 
+    /**
+     * Insert the chosen mention into the composer.
+     */
     public function selectUser(string $userName): void
     {
         if ($this->newCommentState['body']) {

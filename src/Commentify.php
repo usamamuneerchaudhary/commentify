@@ -9,11 +9,17 @@ class Commentify
 {
     protected static ?Closure $commentUrlResolver = null;
 
+    /**
+     * Register the callback that builds the page URL for a comment.
+     */
     public static function resolveCommentUrlUsing(Closure $resolver): void
     {
         static::$commentUrlResolver = $resolver;
     }
 
+    /**
+     * Build the comment URL, including the fragment notifications link to.
+     */
     public static function commentUrl(Comment $comment, ?string $fragment = null): string
     {
         if (static::$commentUrlResolver !== null) {

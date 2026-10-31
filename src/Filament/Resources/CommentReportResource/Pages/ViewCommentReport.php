@@ -10,6 +10,9 @@ class ViewCommentReport extends ViewRecord
 {
     protected static string $resource = CommentReportResource::class;
 
+    /**
+     * Header actions for the report view page.
+     */
     protected function getHeaderActions(): array
     {
         return [

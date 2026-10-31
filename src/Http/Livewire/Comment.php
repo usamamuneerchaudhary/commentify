@@ -59,6 +59,9 @@ class Comment extends Component
         'reportState.reason' => 'reason',
     ];
 
+    /**
+     * Copy the current body into the editor when editing starts.
+     */
     public function updatedIsEditing($isEditing): void
     {
         if (! $isEditing) {
@@ -70,6 +73,8 @@ class Comment extends Component
     }
 
     /**
+     * Authorize and save an edit of this comment.
+     *
      * @throws AuthorizationException
      */
     public function editComment(): void
@@ -84,6 +89,8 @@ class Comment extends Component
     }
 
     /**
+     * Authorize deletion of this comment and refresh the thread.
+     *
      * @throws AuthorizationException
      */
     #[On('refresh')]
@@ -96,6 +103,8 @@ class Comment extends Component
     }
 
     /**
+     * Open the report form, or the already-reported state when this viewer has reported it.
+     *
      * @return Factory|Application|View|\Illuminate\Contracts\Foundation\Application|null
      */
     public function showReportForm(): void
@@ -110,16 +119,25 @@ class Comment extends Component
         $this->showOptions = false;
     }
 
+    /**
+     * Read one commentify config value. Pro overrides this for per-thread settings.
+     */
     public function commentSetting(string $key, mixed $default = null): mixed
     {
         return config('commentify.'.$key, $default);
     }
 
+    /**
+     * Render this comment, its actions, and its replies.
+     */
     public function render(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|null
     {
         return view('commentify::livewire.comment');
     }
 
+    /**
+     * Validate and store a reply when this comment is a parent.
+     */
     #[On('refresh')]
     public function postReply(): void
     {
@@ -168,6 +186,9 @@ class Comment extends Component
         $this->dispatch('refresh')->self();
     }
 
+    /**
+     * Insert the chosen mention into the reply or edit field.
+     */
     public function selectUser($userName): void
     {
         if ($this->replyState['body']) {
@@ -182,6 +203,9 @@ class Comment extends Component
         }
     }
 
+    /**
+     * Search users for the @mention dropdown on this comment.
+     */
     #[On('getUsers')]
     public function getUsers($searchTerm): void
     {
@@ -192,6 +216,9 @@ class Comment extends Component
         }
     }
 
+    /**
+     * Store a report for this comment from the current viewer.
+     */
     public function reportComment(): void
     {
         if (! config('commentify.enable_reporting', true)) {
@@ -242,6 +269,9 @@ class Comment extends Component
         session()->flash('alertType', 'success');
     }
 
+    /**
+     * Close the report form.
+     */
     public function closeReportForm(): void
     {
         $this->isReporting = false;

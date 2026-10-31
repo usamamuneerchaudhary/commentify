@@ -26,6 +26,9 @@ class CommentReportResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    /**
+     * Form schema for a comment report in the admin panel.
+     */
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -65,6 +68,9 @@ class CommentReportResource extends Resource
             ]);
     }
 
+    /**
+     * Table of comment reports in the admin panel.
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -167,6 +173,9 @@ class CommentReportResource extends Resource
             ->defaultSort('created_at', 'desc');
     }
 
+    /**
+     * Relation managers shown on a report. Reports have none.
+     */
     public static function getRelations(): array
     {
         return [
@@ -174,6 +183,9 @@ class CommentReportResource extends Resource
         ];
     }
 
+    /**
+     * Pages registered for the report resource.
+     */
     public static function getPages(): array
     {
         return [

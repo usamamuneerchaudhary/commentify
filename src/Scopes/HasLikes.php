@@ -9,6 +9,8 @@ use Usamamuneerchaudhary\Commentify\Support\IntegerAuthId;
 trait HasLikes
 {
     /**
+     * Likes cast on this comment.
+     *
      * @return HasMany<CommentLike, $this>
      */
     public function likes(): HasMany
@@ -47,6 +49,9 @@ trait HasLikes
         ];
     }
 
+    /**
+     * Whether the current user or guest has liked this comment.
+     */
     public function isLiked(): bool
     {
         $ip = request()->ip();
@@ -74,6 +79,9 @@ trait HasLikes
         return false;
     }
 
+    /**
+     * Delete the current viewer like when one exists.
+     */
     public function removeLike(): bool
     {
         $ip = request()->ip();

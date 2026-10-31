@@ -7,6 +7,9 @@ namespace Usamamuneerchaudhary\Commentify\Support;
  */
 final class IntegerAuthId
 {
+    /**
+     * The authenticated user id when it fits in an integer column, otherwise null.
+     */
     public static function get(): ?int
     {
         if (! auth()->check()) {

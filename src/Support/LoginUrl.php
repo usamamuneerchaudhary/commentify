@@ -6,6 +6,9 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 final class LoginUrl
 {
+    /**
+     * Named login route for the current page, or null when that route is not registered.
+     */
     public static function url(): ?string
     {
         $name = config('commentify.login_route', 'login');

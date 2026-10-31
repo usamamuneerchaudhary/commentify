@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class MentionSearch
 {
     /**
+     * Users whose handle matches the mention term, with LIKE wildcards escaped.
+     *
      * @return Collection<int, Model>
      */
     public static function defaultQuery(string $term): Collection
@@ -25,6 +27,9 @@ class MentionSearch
             ->get();
     }
 
+    /**
+     * Escape backslashes and LIKE wildcards so the term is matched literally.
+     */
     public static function escapeLike(string $term): string
     {
         return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $term);

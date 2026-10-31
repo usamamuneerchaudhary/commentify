@@ -16,12 +16,18 @@ class Like extends Component
 
     public $count;
 
+    /**
+     * Store the comment and its current like count.
+     */
     public function mount(Comment $comment): void
     {
         $this->comment = $comment;
         $this->count = $comment->likes_count;
     }
 
+    /**
+     * Toggle the current viewer like and broadcast CommentLiked when a signed-in user likes it.
+     */
     public function like(): void
     {
         $ip = request()->ip();
@@ -50,6 +56,9 @@ class Like extends Component
         }
     }
 
+    /**
+     * Render the like button.
+     */
     public function render(
     ): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|null {
         return view('commentify::livewire.like');

@@ -23,6 +23,9 @@ class ReportsRelationManager extends RelationManager
 
     protected static ?string $recordTitleAttribute = 'id';
 
+    /**
+     * Form schema for a report managed from its comment.
+     */
     public function form(Schema $schema): Schema
     {
         return $schema
@@ -59,6 +62,9 @@ class ReportsRelationManager extends RelationManager
             ]);
     }
 
+    /**
+     * Table of reports filed against the comment.
+     */
     public function table(Table $table): Table
     {
         return $table

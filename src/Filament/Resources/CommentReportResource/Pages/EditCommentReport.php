@@ -10,6 +10,9 @@ class EditCommentReport extends EditRecord
 {
     protected static string $resource = CommentReportResource::class;
 
+    /**
+     * Header actions for the report edit page.
+     */
     protected function getHeaderActions(): array
     {
         return [

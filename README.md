@@ -9,6 +9,7 @@
 [![Code Intelligence Status](https://scrutinizer-ci.com/g/usamamuneerchaudhary/commentify/badges/code-intelligence.svg?b=main)](https://scrutinizer-ci.com/code-intelligence)
 [![Total Downloads](https://img.shields.io/packagist/dt/usamamuneerchaudhary/commentify?style=flat-square)](https://packagist.org/packages/usamamuneerchaudhary/commentify)
 [![Licence](https://img.shields.io/packagist/l/usamamuneerchaudhary/commentify?style=flat-square)](https://github.com/usamamuneerchaudhary/commentify/blob/HEAD/LICENSE.md)
+[![Changelog](https://img.shields.io/badge/changelog-keep%20a%20changelog-blue?style=flat-square)](CHANGELOG.md)
 
 ![commentify](public/images/commentify.gif)
 
