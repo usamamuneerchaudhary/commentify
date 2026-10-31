@@ -110,6 +110,11 @@ class Comment extends Component
         $this->showOptions = false;
     }
 
+    public function commentSetting(string $key, mixed $default = null): mixed
+    {
+        return config('commentify.'.$key, $default);
+    }
+
     public function render(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|null
     {
         return view('commentify::livewire.comment');

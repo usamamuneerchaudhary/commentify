@@ -7,6 +7,10 @@ use Illuminate\Support\Facades\Schema;
 
 trait CommentScopes
 {
+    protected static ?bool $pinnedAtColumn = null;
+
+    protected static ?bool $threadColumn = null;
+
     public function scopeParent(Builder $builder): void
     {
         $builder->whereNull('parent_id');
@@ -54,14 +58,42 @@ trait CommentScopes
         return $builder->orderByRaw('case when pinned_at is null then 1 else 0 end');
     }
 
-    protected static function hasPinnedAtColumn(): bool
+    /**
+     * Limit a thread to one named lane. No-ops when the Pro `thread` column is absent.
+     */
+    public function scopeForThread(Builder $builder, string $thread): Builder
     {
-        static $has = null;
-
-        if ($has === null) {
-            $has = Schema::hasColumn((new static)->getTable(), 'pinned_at');
+        if (! static::hasThreadColumn()) {
+            return $builder;
         }
 
-        return $has;
+        return $builder->where($builder->qualifyColumn('thread'), $thread);
+    }
+
+    public static function hasThreadColumn(): bool
+    {
+        if (static::$threadColumn === null) {
+            static::$threadColumn = Schema::hasColumn((new static)->getTable(), 'thread');
+        }
+
+        return static::$threadColumn;
+    }
+
+    /**
+     * Drop cached column lookups. Pro tests migrate the comments table per test.
+     */
+    public static function flushColumnCache(): void
+    {
+        static::$pinnedAtColumn = null;
+        static::$threadColumn = null;
+    }
+
+    protected static function hasPinnedAtColumn(): bool
+    {
+        if (static::$pinnedAtColumn === null) {
+            static::$pinnedAtColumn = Schema::hasColumn((new static)->getTable(), 'pinned_at');
+        }
+
+        return static::$pinnedAtColumn;
     }
 }

@@ -1,8 +1,10 @@
 <?php
 
 use Illuminate\Support\Str;
+use Usamamuneerchaudhary\Commentify\Events\CommentPosting;
 use Usamamuneerchaudhary\Commentify\Models\Comment;
 use Usamamuneerchaudhary\Commentify\Models\User;
+use Usamamuneerchaudhary\Commentify\Support\MentionSearch;
 
 class CommentTest extends TestCase
 {
@@ -65,6 +67,46 @@ class CommentTest extends TestCase
 
         $this->assertInstanceOf(Comment::class, $comment->children->first());
         $this->assertCount(2, $comment->children);
+    }
+
+    public function test_for_thread_keeps_every_comment_when_the_column_is_absent(): void
+    {
+        Comment::flushColumnCache();
+
+        $match = $this->article->comments()->forThread('reviews')->first();
+
+        $this->assertTrue($this->comment->is($match));
+        $this->assertFalse(Comment::hasThreadColumn());
+    }
+
+    public function test_is_edited_is_false_without_a_revision_history(): void
+    {
+        $this->assertFalse($this->comment->isEdited());
+    }
+
+    public function test_comment_posting_can_be_cancelled(): void
+    {
+        $event = new CommentPosting($this->comment);
+
+        $this->assertFalse($event->isCancelled());
+
+        $event->cancel('nope');
+
+        $this->assertTrue($event->isCancelled());
+        $this->assertSame('nope', $event->reason);
+    }
+
+    public function test_mention_search_treats_percent_signs_as_literal_text(): void
+    {
+        config(['commentify.user_model' => User::class]);
+
+        User::factory()->create(['name' => 'Alice Cooper']);
+
+        $this->assertCount(0, MentionSearch::defaultQuery('%%'));
+        $this->assertSame(
+            ['Alice Cooper'],
+            MentionSearch::defaultQuery('alice')->pluck('name')->all(),
+        );
     }
 
     public function test_comment_has_commentable_relation(): void

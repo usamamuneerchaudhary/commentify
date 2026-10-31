@@ -16,6 +16,37 @@ trait HasLikes
         return $this->hasMany(CommentLike::class);
     }
 
+    /**
+     * Constraint for withExists() so a list can mark the viewer's like without loading every row.
+     *
+     * @return array<string, callable>
+     */
+    public static function viewerLikeExists(): array
+    {
+        return [
+            'likes as liked' => function ($query): void {
+                $userId = IntegerAuthId::get();
+
+                if ($userId !== null) {
+                    $query->where('user_id', $userId);
+
+                    return;
+                }
+
+                $ip = request()->ip();
+                $userAgent = request()->userAgent();
+
+                if ($ip && $userAgent) {
+                    $query->forIp($ip)->forUserAgent($userAgent);
+
+                    return;
+                }
+
+                $query->whereRaw('0 = 1');
+            },
+        ];
+    }
+
     public function isLiked(): bool
     {
         $ip = request()->ip();

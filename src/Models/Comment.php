@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Schema;
 use Usamamuneerchaudhary\Commentify\Database\Factories\CommentFactory;
 use Usamamuneerchaudhary\Commentify\Models\Presenters\CommentPresenter;
 use Usamamuneerchaudhary\Commentify\Scopes\CommentScopes;
@@ -61,6 +62,9 @@ class Comment extends Model
         return is_null($this->parent_id);
     }
 
+    /**
+     * @return BelongsTo<Model, $this>
+     */
     public function user(): BelongsTo
     {
         $model = config('commentify.user_model');
@@ -77,11 +81,17 @@ class Comment extends Model
         return $this->belongsTo(Comment::class, 'parent_id');
     }
 
+    /**
+     * @return HasMany<Comment, $this>
+     */
     public function children(): HasMany
     {
         return $this->hasMany(Comment::class, 'parent_id')->oldest();
     }
 
+    /**
+     * @return MorphTo<Model, $this>
+     */
     public function commentable(): MorphTo
     {
         return $this->morphTo();
@@ -137,6 +147,18 @@ class Comment extends Model
     public function isPinned(): bool
     {
         return $this->pinned_at !== null;
+    }
+
+    public function isEdited(): bool
+    {
+        if (! Schema::hasTable('commentify_comment_revisions')) {
+            return false;
+        }
+
+        return $this->getConnection()
+            ->table('commentify_comment_revisions')
+            ->where('comment_id', $this->getKey())
+            ->exists();
     }
 
     public function isGuest(): bool
