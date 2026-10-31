@@ -40,8 +40,7 @@ return [
     // Run Slipway's commands (drift check, secret scan) through Testbench.
     'artisan' => 'vendor/bin/testbench',
 
-    // Slipway itself requires PHP 8.3, so the dev-dependency install cannot run on 8.2.
-    // Production installs stay on ^8.2 because this package is a dev dependency.
+    // Production requires PHP 8.3. CI runs 8.3 and 8.4.
     'php' => ['8.3', '8.4'],
     'node' => null,
 
