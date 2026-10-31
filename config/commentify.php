@@ -8,6 +8,9 @@ return [
     'user_profile_route' => null, // optional named route (e.g. 'users.show'); preferred over prefix + key
     'user_model' => User::class, // set to App\Models\User::class to use your app's User model for avatars
     'pagination_count' => 10,
+    'lazy' => false, // true renders a placeholder until the section enters the viewport
+    'tree_loader' => 'eager', // eager (default) or cte (one recursive query; MySQL 8+, MariaDB 10.2+, PostgreSQL, SQLite, SQL Server)
+    'max_depth' => 2, // reply levels loaded under each top-level comment
     'css_framework' => 'tailwind', // Options: 'tailwind' or 'bootstrap' (also sets Livewire pagination theme)
     'comment_nesting' => true, // set to false if you don't want to allow nesting of comments
     'read_only' => false, // set to true if you want to make comments read only
@@ -28,4 +31,18 @@ return [
         'require_email' => true,
         'show_gravatar' => true,
     ],
+    'honeypot' => true,
+    'rate_limit' => [
+        'enabled' => true,
+        'max_attempts' => 5,
+        'decay_seconds' => 60,
+    ],
+    'mentions' => [
+        'min_length' => 2,
+        'throttle_attempts' => 20,
+        'throttle_decay_seconds' => 60,
+        'handle_column' => null,
+    ],
+    'schema_org' => false,
+    'replies_per_page' => 5,
 ];

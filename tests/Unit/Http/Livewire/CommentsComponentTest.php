@@ -49,6 +49,30 @@ class CommentsComponentTest extends TestCase
             ->assertSee($this->comment->body);
     }
 
+    public function test_lazy_config_renders_a_placeholder_until_the_thread_is_requested(): void
+    {
+        config()->set('commentify.lazy', true);
+
+        Livewire::test(Comments::class, [
+            'model' => $this->article,
+        ])
+            ->assertSee('Loading comments')
+            ->assertDontSee($this->comment->body)
+            ->assertSeeHtml('x-intersect');
+    }
+
+    public function test_lazy_false_on_the_tag_overrides_the_config_flag(): void
+    {
+        config()->set('commentify.lazy', true);
+
+        Livewire::test(Comments::class, [
+            'model' => $this->article,
+            'lazy' => false,
+        ])
+            ->assertSee($this->comment->body)
+            ->assertDontSee('Loading comments');
+    }
+
     public function test_it_shows_no_comments_text_if_empty_for_model(): void
     {
         Livewire::test(Comments::class, [

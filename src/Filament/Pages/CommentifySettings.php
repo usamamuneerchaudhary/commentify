@@ -70,6 +70,27 @@ class CommentifySettings extends Page implements HasForms
                             ->numeric()
                             ->default(10)
                             ->required(),
+                        Forms\Components\Toggle::make('lazy')
+                            ->label('Lazy-load threads')
+                            ->helperText('Show a placeholder until the comment section enters the viewport. Leave off to keep comments in the first HTML response.')
+                            ->default(false),
+                        Forms\Components\Select::make('tree_loader')
+                            ->label('Thread loader')
+                            ->options([
+                                'eager' => 'Eager load',
+                                'cte' => 'Recursive query (CTE)',
+                            ])
+                            ->default('eager')
+                            ->required()
+                            ->helperText('CTE needs MySQL 8+, MariaDB 10.2+, PostgreSQL, SQLite, or SQL Server.'),
+                        Forms\Components\TextInput::make('max_depth')
+                            ->label('Maximum reply depth')
+                            ->numeric()
+                            ->minValue(0)
+                            ->maxValue(50)
+                            ->default(2)
+                            ->required()
+                            ->helperText('Reply levels loaded under each top-level comment. 2 matches the previous eager load.'),
                         Forms\Components\Toggle::make('comment_nesting')
                             ->label('Enable Comment Nesting')
                             ->default(true),

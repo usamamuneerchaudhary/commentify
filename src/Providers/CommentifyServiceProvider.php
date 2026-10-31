@@ -5,11 +5,15 @@ namespace Usamamuneerchaudhary\Commentify\Providers;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Livewire\ComponentHookRegistry;
+use Livewire\Features\SupportLazyLoading\SupportLazyLoading;
 use Livewire\Livewire;
 use Usamamuneerchaudhary\Commentify\Http\Livewire\Comment;
 use Usamamuneerchaudhary\Commentify\Http\Livewire\Comments;
 use Usamamuneerchaudhary\Commentify\Http\Livewire\Like;
 use Usamamuneerchaudhary\Commentify\Policies\CommentPolicy;
+
+use function Livewire\after;
 
 class CommentifyServiceProvider extends ServiceProvider
 {
@@ -105,8 +109,29 @@ class CommentifyServiceProvider extends ServiceProvider
         }
 
         $this->loadTranslationsFrom(__DIR__.'/../../lang', 'commentify');
+        $this->registerLazyComments();
         Livewire::component('comments', Comments::class);
         Livewire::component('comment', Comment::class);
         Livewire::component('like', Like::class);
+    }
+
+    /**
+     * Livewire only lazy-loads when the tag passes `lazy` or the class has #[Lazy].
+     * The config flag applies the same mount path unless a tag sets `lazy` itself.
+     */
+    protected function registerLazyComments(): void
+    {
+        after('mount', function (object $component, array $params): void {
+            if (! $component instanceof Comments) {
+                return;
+            }
+
+            if (array_key_exists('lazy', $params) || ! config('commentify.lazy')) {
+                return;
+            }
+
+            ComponentHookRegistry::getHook($component, SupportLazyLoading::class)
+                ?->mount(['lazy' => true] + $params);
+        });
     }
 }

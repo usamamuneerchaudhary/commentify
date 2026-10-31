@@ -4,7 +4,9 @@ namespace Usamamuneerchaudhary\Commentify\Http\Livewire;
 
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Str;
@@ -12,9 +14,11 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Usamamuneerchaudhary\Commentify\Events\CommentPosted;
+use Usamamuneerchaudhary\Commentify\Events\CommentPosting;
 use Usamamuneerchaudhary\Commentify\Http\Livewire\Concerns\PostsGuestComments;
 use Usamamuneerchaudhary\Commentify\Http\Livewire\Concerns\PreviewsMarkdown;
 use Usamamuneerchaudhary\Commentify\Models\Comment;
+use Usamamuneerchaudhary\Commentify\Support\CommentTree;
 
 class Comments extends Component
 {
@@ -34,6 +38,10 @@ class Comments extends Component
 
     public bool $subscribe_to_replies = false;
 
+    public string $thread = 'default';
+
+    public string $announcement = '';
+
     protected $numberOfPaginatorsRendered = [];
 
     public $newCommentState = [
@@ -48,10 +56,81 @@ class Comments extends Component
         'newCommentState.body' => 'comment',
     ];
 
-    public function mount(Model $model)
+    public function mount(Model $model, ?string $thread = null): void
     {
         $this->model = $model;
         $this->sort = config('commentify.default_sort', 'newest');
+        $this->thread = ($thread !== null && $thread !== '') ? $thread : 'default';
+    }
+
+    public function resolvedThread(): string
+    {
+        return $this->thread !== '' ? $this->thread : 'default';
+    }
+
+    public function commentsAreReadOnly(): bool
+    {
+        return (bool) config('commentify.read_only', false);
+    }
+
+    public function commentSetting(string $key, mixed $default = null): mixed
+    {
+        return config('commentify.'.$key, $default);
+    }
+
+    public function commentsRequireApproval(): bool
+    {
+        return (bool) config('commentify.require_approval', false);
+    }
+
+    protected function commentRateLimitMax(): int
+    {
+        return (int) config('commentify.rate_limit.max_attempts', 5);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function extraPostingRules(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function newCommentAttributes(): array
+    {
+        return [
+            'body' => $this->newCommentState['body'] ?? '',
+        ];
+    }
+
+    protected function prepareCommentForCreate(Comment $comment): void
+    {
+        if (Comment::hasThreadColumn()) {
+            $comment->thread = $this->resolvedThread();
+        }
+    }
+
+    protected function beforeCommentCreate(Comment $comment): bool
+    {
+        return true;
+    }
+
+    /**
+     * @param  Builder<Model>|Relation<Model, Model, mixed>  $query
+     */
+    protected function orderChildren(Builder|Relation $query): void {}
+
+    protected function resetComposer(): void
+    {
+        $this->newCommentState = [
+            'body' => '',
+        ];
+        $this->resetGuestFields();
+        $this->users = [];
+        $this->showDropdown = false;
     }
 
     /**
@@ -77,52 +156,20 @@ class Comments extends Component
         $this->resetPage();
     }
 
+    public function placeholder(): View
+    {
+        return view('commentify::livewire.placeholder');
+    }
+
     public function render(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|null
     {
-        $requireApproval = config('commentify.require_approval', false);
-
-        $query = $this->model
-            ->comments()
-            ->with([
-                'user',
-                'likes',
-                'children' => function ($query) use ($requireApproval) {
-                    $query->with([
-                        'user',
-                        'likes',
-                        'children' => function ($nestedQuery) use ($requireApproval) {
-                            $nestedQuery->with('user', 'likes');
-                            if ($requireApproval) {
-                                $nestedQuery->approved();
-                            }
-                        },
-                    ]);
-                    if ($requireApproval) {
-                        $query->approved();
-                    }
-                },
-            ])
-            ->parent()
-            ->pinnedFirst()
-            ->withCount('children');
-
-        // Filter by approval status if moderation is enabled
-        if ($requireApproval) {
-            $query->approved();
-        }
-
-        if (config('commentify.enable_sorting', true)) {
-            $query = match ($this->sort) {
-                'oldest' => $query->oldest(),
-                'most_liked' => $query->mostLiked(),
-                'most_replied' => $query->mostReplied(),
-                default => $query->newest(),
-            };
-        } else {
-            $query = $query->newest();
-        }
-
-        $comments = $query->paginate(config('commentify.pagination_count', 10));
+        $comments = (new CommentTree(
+            $this->model,
+            $this->resolvedThread(),
+            function (mixed $query): void {
+                $this->orderChildren($query);
+            },
+        ))->paginate((string) $this->sort);
 
         return view('commentify::livewire.comments', [
             'comments' => $comments,
@@ -132,7 +179,7 @@ class Comments extends Component
     #[On('refresh')]
     public function postComment(): void
     {
-        if (config('commentify.read_only')) {
+        if ($this->commentsAreReadOnly()) {
             session()->flash('message', __('commentify::commentify.comments.read_only_message'));
             session()->flash('alertType', 'warning');
 
@@ -142,9 +189,9 @@ class Comments extends Component
         // Authorize using the CommentPolicy@create method
         $this->authorize('create', Comment::class);
 
-        $rules = [
+        $rules = array_merge([
             'newCommentState.body' => 'required',
-        ];
+        ], $this->extraPostingRules());
 
         if ($this->guestCommentsAllowed()) {
             $rules = array_merge($rules, $this->guestCommentRules());
@@ -152,13 +199,31 @@ class Comments extends Component
 
         $this->validate($rules);
 
-        $comment = $this->model->comments()->make($this->newCommentState);
+        $comment = $this->model->comments()->make($this->newCommentAttributes());
         $this->associateCommentAuthor($comment);
+        $comment->is_approved = ! $this->commentsRequireApproval();
+        $this->prepareCommentForCreate($comment);
 
-        // Set approval status based on config
-        $comment->is_approved = ! config('commentify.require_approval', false);
+        if (! $this->beforeCommentCreate($comment)) {
+            return;
+        }
 
-        $comment->save();
+        $posting = new CommentPosting($comment);
+        event($posting);
+
+        if ($posting->isCancelled()) {
+            session()->flash('message', $posting->reason ?: __('commentify::commentify.comments.read_only_message'));
+            session()->flash('alertType', 'warning');
+
+            return;
+        }
+
+        if (! $comment->save()) {
+            session()->flash('message', __('commentify::commentify.comments.read_only_message'));
+            session()->flash('alertType', 'warning');
+
+            return;
+        }
 
         if (config('commentify.enable_notifications', false)) {
             event(new CommentPosted($comment));
@@ -177,12 +242,7 @@ class Comments extends Component
             );
         }
 
-        $this->newCommentState = [
-            'body' => '',
-        ];
-        $this->resetGuestFields();
-        $this->users = [];
-        $this->showDropdown = false;
+        $this->resetComposer();
 
         $this->resetPage();
         session()->flash('message', 'Comment Posted Successfully!');

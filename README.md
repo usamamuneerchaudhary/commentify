@@ -180,6 +180,9 @@ return [
     'user_profile_route' => null,           // Optional named route (e.g. 'users.show'); preferred over prefix
     'user_model' => \App\Models\User::class, // Use your app's User model for avatars and user-related logic
     'pagination_count' => 10,                // Number of comments per page
+    'lazy' => false,                         // Placeholder until the section enters the viewport
+    'tree_loader' => 'eager',                // 'eager' or 'cte' (one recursive query)
+    'max_depth' => 2,                        // Reply levels loaded under each top-level comment
     'css_framework' => 'tailwind',           // 'tailwind' or 'bootstrap'
     'comment_nesting' => true,              // Enable/disable nested comments
     'read_only' => false,                   // Enable read-only mode
@@ -207,6 +210,10 @@ return [
     ],
 ];
 ```
+
+`lazy` stays off unless you opt in, so comment HTML remains in the first response. Set it to `true` to render a placeholder until the section enters the viewport. A tag can still force either behavior with `lazy` or `:lazy="false"`.
+
+`tree_loader` stays `eager`, which loads `max_depth` levels of replies (default 2, the same shape as before). `cte` loads that tree in one recursive query on MySQL 8+, MariaDB 10.2+, PostgreSQL, SQLite, or SQL Server. Both loaders go through the `Comment` model, so global scopes registered by the host app, including a tenancy scope, apply to the page query and to both halves of the recursive query.
 
 Mention `@username` links use the profile URL settings above. For resource-style `/users/{id}` profiles, set:
 
