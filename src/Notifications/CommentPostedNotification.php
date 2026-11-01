@@ -60,9 +60,9 @@ class CommentPostedNotification extends Notification implements ShouldQueue
         return [
             'comment_id' => $this->event->comment->id,
             'user_id' => $this->event->comment->user_id,
-            'user_name' => $this->event->comment->user->name,
+            'user_name' => $this->event->comment->authorName(),
             'message' => __('commentify::commentify.notifications.comment_posted_message', [
-                'user' => $this->event->comment->user->name,
+                'user' => $this->event->comment->authorName(),
             ]),
         ];
     }

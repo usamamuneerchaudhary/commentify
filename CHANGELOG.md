@@ -1,4 +1,15 @@
 # Changelog
+## [4.4]
+
+### Added
+
+- `<x-commentify::thread>` keys the Livewire thread to the record, so a Filament modal shows the record you opened. `CommentsEntry::make()` drops that thread on an edit form or relation manager form.
+- With notifications enabled, and Pro not installed, a reply notifies the parent author. A top-level comment notifies the commentable's user when that relation exists.
+
+### Changed
+
+- Minimum PHP is 8.3.
+
 ## [4.3]
 
 ### Added

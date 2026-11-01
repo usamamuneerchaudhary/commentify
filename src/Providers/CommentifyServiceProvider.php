@@ -3,14 +3,17 @@
 namespace Usamamuneerchaudhary\Commentify\Providers;
 
 use Filament\Facades\Filament;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Livewire\ComponentHookRegistry;
 use Livewire\Features\SupportLazyLoading\SupportLazyLoading;
 use Livewire\Livewire;
+use Usamamuneerchaudhary\Commentify\Events\CommentPosted;
 use Usamamuneerchaudhary\Commentify\Http\Livewire\Comment;
 use Usamamuneerchaudhary\Commentify\Http\Livewire\Comments;
 use Usamamuneerchaudhary\Commentify\Http\Livewire\Like;
+use Usamamuneerchaudhary\Commentify\Listeners\SendCommentPostedNotification;
 use Usamamuneerchaudhary\Commentify\Policies\CommentPolicy;
 
 use function Livewire\after;
@@ -114,7 +117,9 @@ class CommentifyServiceProvider extends ServiceProvider
             }
         }
 
+        $this->loadViewsFrom(__DIR__.'/../../resources/views/shared', 'commentify');
         $this->loadTranslationsFrom(__DIR__.'/../../lang', 'commentify');
+        Event::listen(CommentPosted::class, SendCommentPostedNotification::class);
         $this->registerLazyComments();
         Livewire::component('comments', Comments::class);
         Livewire::component('comment', Comment::class);
