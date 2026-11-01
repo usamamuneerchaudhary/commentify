@@ -5,12 +5,13 @@ namespace Usamamuneerchaudhary\Commentify\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as BaseUser;
+use Illuminate\Notifications\Notifiable;
 use Usamamuneerchaudhary\Commentify\Database\Factories\UserFactory;
 use Usamamuneerchaudhary\Commentify\Traits\HasUserAvatar;
 
 class User extends BaseUser
 {
-    use HasFactory, HasUserAvatar;
+    use HasFactory, HasUserAvatar, Notifiable;
 
     /**
      * @var string
