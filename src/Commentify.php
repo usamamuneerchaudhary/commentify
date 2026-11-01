@@ -18,6 +18,14 @@ class Commentify
     }
 
     /**
+     * Drop the comment URL resolver for this process.
+     */
+    public static function forgetCommentUrlResolver(): void
+    {
+        static::$commentUrlResolver = null;
+    }
+
+    /**
      * Build the comment URL, including the fragment notifications link to.
      */
     public static function commentUrl(Comment $comment, ?string $fragment = null): string

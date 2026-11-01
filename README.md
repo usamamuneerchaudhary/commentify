@@ -19,29 +19,17 @@ The guides live at [docs.commentify.pro](https://docs.commentify.pro). This repo
 
 ## Install
 
+Install from the [installation guide](https://docs.commentify.pro/installation).
+
 ```bash
 composer require usamamuneerchaudhary/commentify
-php artisan migrate
-```
-
-```php
-use Usamamuneerchaudhary\Commentify\Traits\Commentable;
-
-class Article extends Model
-{
-    use Commentable;
-}
-```
-
-```blade
-<livewire:comments :model="$article" />
 ```
 
 ## Docs
 
 - [Install](https://docs.commentify.pro/installation)
 - [Usage](https://docs.commentify.pro/usage)
-- [Threads](https://docs.commentify.pro/threads) — sorting, reports, approval, markdown, lazy loading, thread loader
+- [Threads](https://docs.commentify.pro/threads): sorting, reports, approval, markdown, lazy loading, thread loader
 - [Configuration](https://docs.commentify.pro/configuration)
 - [Guests](https://docs.commentify.pro/guests)
 - [Customization](https://docs.commentify.pro/customization)

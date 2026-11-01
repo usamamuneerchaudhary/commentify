@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Schema;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+use Usamamuneerchaudhary\Commentify\Commentify;
 use Usamamuneerchaudhary\Commentify\Events\CommentPosted;
 use Usamamuneerchaudhary\Commentify\Http\Livewire\Comment as LivewireComment;
 use Usamamuneerchaudhary\Commentify\Http\Livewire\Comments;
@@ -31,7 +32,8 @@ class CommentPostedNotificationTest extends TestCase
             function (CommentPostedNotification $notification) use ($author, $replier, $reply): bool {
                 $payload = $notification->toArray($author);
 
-                return $payload['comment_id'] === $reply->id
+                return $notification->afterCommit === true
+                    && $payload['comment_id'] === $reply->id
                     && $payload['user_id'] === $replier->id
                     && $payload['user_name'] === $replier->name
                     && $payload['message'] === $replier->name.' posted a new comment.';
@@ -314,6 +316,30 @@ class CommentPostedNotificationTest extends TestCase
                     && $payload['user_name'] === 'Jane Guest';
             },
         );
+    }
+
+    public function test_the_mail_button_stays_on_the_application_host(): void
+    {
+        config(['app.url' => 'https://commentify.test']);
+
+        $owner = User::factory()->create();
+        $comment = $this->comment($this->articleOwnedBy($owner), User::factory()->create(), 'Hello');
+        $notification = new CommentPostedNotification(new CommentPosted($comment));
+
+        Commentify::resolveCommentUrlUsing(fn (): string => 'https://evil.test/phish');
+
+        try {
+            $this->assertNull($notification->toMail($owner)->actionUrl);
+
+            Commentify::resolveCommentUrlUsing(fn (): string => 'https://commentify.test/articles/1');
+
+            $this->assertSame(
+                'https://commentify.test/articles/1#comment-'.$comment->id,
+                $notification->toMail($owner)->actionUrl,
+            );
+        } finally {
+            Commentify::forgetCommentUrlResolver();
+        }
     }
 
     #[RunInSeparateProcess]

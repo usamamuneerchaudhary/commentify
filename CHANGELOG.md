@@ -3,8 +3,8 @@
 
 ### Added
 
-- `<x-commentify::thread>` keys the Livewire thread to the record, so a Filament modal shows the record you opened. `CommentsEntry::make()` drops that thread on an edit form or relation manager form.
-- With notifications enabled, and Pro not installed, a reply notifies the parent author. A top-level comment notifies the commentable's user when that relation exists.
+- `<x-commentify::thread>` keys the Livewire thread to the record and thread name, so a Filament modal shows the record you opened and two threads on one record stay separate. `CommentsEntry::make()` drops that thread on an edit form or relation manager form.
+- With notifications enabled, and Pro not installed, a reply notifies the parent author. A top-level comment notifies the commentable's user when that relation exists. The queued notification waits until the database transaction commits. The mail button is included only when the comment URL is on the application host.
 
 ### Changed
 

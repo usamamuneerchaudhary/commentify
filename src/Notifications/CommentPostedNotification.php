@@ -39,15 +39,35 @@ class CommentPostedNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
+        $mail = (new MailMessage)
             ->subject(__('commentify::commentify.notifications.comment_posted_subject'))
             ->line(__('commentify::commentify.notifications.comment_posted_line', [
                 'user' => $this->event->comment->authorName(),
-            ]))
-            ->action(
-                __('commentify::commentify.notifications.view_comment'),
-                Commentify::commentUrl($this->event->comment)
-            );
+            ]));
+
+        $url = $this->applicationCommentUrl();
+
+        if ($url !== null) {
+            $mail->action(__('commentify::commentify.notifications.view_comment'), $url);
+        }
+
+        return $mail;
+    }
+
+    /**
+     * Permalink for the mail button. Off-site fallbacks, including the request referer, are left out.
+     */
+    protected function applicationCommentUrl(): ?string
+    {
+        $url = Commentify::commentUrl($this->event->comment);
+        $appHost = parse_url((string) config('app.url'), PHP_URL_HOST);
+        $linkHost = parse_url($url, PHP_URL_HOST);
+
+        if (! is_string($appHost) || ! is_string($linkHost) || strcasecmp($appHost, $linkHost) !== 0) {
+            return null;
+        }
+
+        return $url;
     }
 
     /**

@@ -20,6 +20,10 @@ class CommentThreadKeyTest extends TestCase
         );
         $this->assertSame(CommentThreadKey::for($article), CommentThreadKey::for($again));
         $this->assertNotSame(CommentThreadKey::for($article), CommentThreadKey::for($episode));
+        $this->assertSame(
+            CommentThreadKey::for($article).'-reviews',
+            CommentThreadKey::for($article, 'reviews'),
+        );
     }
 
     public function test_the_thread_component_keys_livewire_to_the_record(): void
@@ -39,7 +43,7 @@ class CommentThreadKeyTest extends TestCase
 
         $html = $this->renderThread($article, 'reviews');
 
-        $this->assertStringContainsString('wire:key="'.CommentThreadKey::for($article).'"', $html);
+        $this->assertStringContainsString('wire:key="'.CommentThreadKey::for($article, 'reviews').'"', $html);
         $this->assertStringContainsString('"thread":"reviews"', html_entity_decode($html));
     }
 

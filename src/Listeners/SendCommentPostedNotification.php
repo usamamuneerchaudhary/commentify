@@ -40,7 +40,7 @@ class SendCommentPostedNotification
             return;
         }
 
-        $recipient->notify(new CommentPostedNotification($event));
+        $recipient->notify((new CommentPostedNotification($event))->afterCommit());
     }
 
     /**
