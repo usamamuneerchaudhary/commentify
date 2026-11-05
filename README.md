@@ -8,6 +8,7 @@
 [![Build Status](https://scrutinizer-ci.com/g/usamamuneerchaudhary/commentify/badges/build.png?b=main)](https://scrutinizer-ci.com/g/usamamuneerchaudhary/commentify/build-status/main)
 [![Code Intelligence Status](https://scrutinizer-ci.com/g/usamamuneerchaudhary/commentify/badges/code-intelligence.svg?b=main)](https://scrutinizer-ci.com/code-intelligence)
 [![Total Downloads](https://img.shields.io/packagist/dt/usamamuneerchaudhary/commentify?style=flat-square)](https://packagist.org/packages/usamamuneerchaudhary/commentify)
+[![Daily Downloads](https://img.shields.io/packagist/dd/usamamuneerchaudhary/commentify?style=flat-square)](https://packagist.org/packages/usamamuneerchaudhary/commentify)
 [![Licence](https://img.shields.io/packagist/l/usamamuneerchaudhary/commentify?style=flat-square)](https://github.com/usamamuneerchaudhary/commentify/blob/HEAD/LICENSE.md)
 [![Changelog](https://img.shields.io/badge/changelog-keep%20a%20changelog-blue?style=flat-square)](CHANGELOG.md)
 
