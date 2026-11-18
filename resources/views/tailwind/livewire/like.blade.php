@@ -1,5 +1,10 @@
 <span class="inline-flex items-center text-sm">
-  <button wire:click="like" class="inline-flex space-x-2 {{ $comment->isLiked() ? 'text-green-400 hover:text-green-500 dark:text-green-500 dark:hover:text-green-400' : 'text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400' }} focus:outline-none focus:ring-0">
+  <button
+    type="button"
+    @if (! $locked) wire:click="like" @endif
+    @disabled($locked)
+    @if ($locked) title="{{ __('commentify::commentify.comments.read_only_message') }}" @endif
+    class="inline-flex space-x-2 {{ $comment->isLiked() ? 'text-green-400 hover:text-green-500 dark:text-green-500 dark:hover:text-green-400' : 'text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400' }} {{ $locked ? 'cursor-not-allowed opacity-60' : '' }} focus:outline-none focus:ring-0">
     <svg class="h-5 w-5" x-description="solid/thumb-up" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
          fill="currentColor" aria-hidden="true">
         <path

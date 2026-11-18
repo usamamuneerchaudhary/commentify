@@ -26,10 +26,31 @@ class Like extends Component
     }
 
     /**
+     * Read one commentify config value. Pro overrides this for per-thread settings.
+     */
+    public function commentSetting(string $key, mixed $default = null): mixed
+    {
+        return config('commentify.'.$key, $default);
+    }
+
+    /**
+     * Whether likes are frozen because comments are read-only.
+     */
+    public function likesAreLocked(): bool
+    {
+        return (bool) $this->commentSetting('read_only', false);
+    }
+
+    /**
      * Toggle the current viewer like and broadcast CommentLiked when a signed-in user likes it.
+     * Does nothing while comments are read-only.
      */
     public function like(): void
     {
+        if ($this->likesAreLocked()) {
+            return;
+        }
+
         $ip = request()->ip();
         $userAgent = request()->userAgent();
         if ($this->comment->isLiked()) {
@@ -61,6 +82,8 @@ class Like extends Component
      */
     public function render(
     ): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|null {
-        return view('commentify::livewire.like');
+        return view('commentify::livewire.like', [
+            'locked' => $this->likesAreLocked(),
+        ]);
     }
 }
