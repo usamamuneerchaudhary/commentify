@@ -96,4 +96,31 @@ class LikeComponentTest extends TestCase
 
         $this->assertSame(0, $this->comment->likes()->count());
     }
+
+    public function test_read_only_blocks_likes_and_disables_the_button(): void
+    {
+        config(['commentify.read_only' => true]);
+        $this->actingAs($this->user);
+
+        Livewire::test(Like::class, ['comment' => $this->comment])
+            ->assertSeeHtml('disabled')
+            ->assertDontSeeHtml('wire:click="like"')
+            ->call('like')
+            ->assertSet('count', 0);
+
+        $this->assertSame(0, $this->comment->likes()->count());
+    }
+
+    public function test_read_only_blocks_unlikes(): void
+    {
+        $this->actingAs($this->user);
+        $this->comment->likes()->create(['user_id' => $this->user->id]);
+        config(['commentify.read_only' => true]);
+
+        Livewire::test(Like::class, ['comment' => $this->comment->fresh()])
+            ->call('like')
+            ->assertSet('count', 1);
+
+        $this->assertSame(1, $this->comment->likes()->count());
+    }
 }

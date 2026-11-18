@@ -1,4 +1,10 @@
 # Changelog
+## [Unreleased]
+
+### Fixed
+
+- Likes respect `read_only`. The Livewire like action does nothing while comments are read-only, and the like button renders disabled. `Like::commentSetting()` and `Like::likesAreLocked()` are hooks another package can override.
+
 ## [4.4]
 
 ### Added
